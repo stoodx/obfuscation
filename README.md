@@ -1,12 +1,12 @@
 # obfuscation
 
-***** Content *****
+Content
 1. Parser file
 2. Encoder/Decoder
 3. Usage of obfuscation in MS VC++ project
 
 
-***** 1. Parser file *****
+1. Parser file
 
 Usage
  Parser <operation>
