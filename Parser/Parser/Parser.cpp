@@ -49,12 +49,12 @@ err:
 				{
 				case _T('O'):
 				case _T('o'):
-					_tprintf(_T("Obfuscate operation\n\n"));
-					Obfuscate(strCurrentPath);
+					_tprintf(_T("!!!Obfuscate operation!!!\n\n"));
+					nRetCode = Obfuscate(strCurrentPath);
 				case _T('R'):
 				case _T('r'):
-					_tprintf(_T("Restore operation\n\n"));
-					Restore(strCurrentPath);
+					_tprintf(_T("!!!Restore operation!!!\n\n"));
+					nRetCode = Restore(strCurrentPath);
 					break;
 				default:
 					_tprintf(_T("Invalid parameter: %s\n\n"), argv[1]);
@@ -75,12 +75,136 @@ err:
 }
 
 
-bool Obfuscate(CString strCurrentPath)
+int Obfuscate(CString strRootPath)
 {
+	//return:
+	//0 - normal
+	//1 - error
+
+	CPtrArray listDirs;
+	int nSizeDir = 0;
+	int nResult = 1; //for eeror
+
+	//save the rood dir to the list
+	CCodeDirectories* pDirs =  new CCodeDirectories;
+	ASSERT(pDirs);
+	pDirs->m_strOriginalDir = strRootPath + _T("\\");
+	listDirs.Add(pDirs);
+	//Find all subdirs in root
+	FindSubDirs(listDirs);
+	//create the temp dirt, start with TEMP_ORIGINAL in root
+	if (CreateTempDirs(listDirs, _T("TEMP_ORIGINAL")))
+	{
+		CopyCodeFiles(listDirs);
+		_tprintf(_T("Obfuscate operation - Done!\n\n"));
+	}
+	else
+		nResult = 1;
+
+	//clean the dir list 
+	nSizeDir = listDirs.GetSize();
+	for (int i = 0; i < nSizeDir; i++)
+	{
+		pDirs = (CCodeDirectories*)listDirs.GetAt(i);
+		delete pDirs;
+	}
+	listDirs.RemoveAll();
+
+	return nResult;
+}
+
+int Restore(CString strRootPath)
+{
+	//return:
+	//0 - normal
+	//1 - error
+
+	int nResult = 0;
+	return nResult;
+}
+
+int FindSubDirs(CPtrArray& listDirs)
+{
+	//return size of dirs in root
+	ASSERT(listDirs.GetSize() > 0);
+
+	CString strCurrentDir;
+	CStringArray directoryArray;
+	CFileFind finder;
+
+	strCurrentDir = ((CCodeDirectories*)listDirs.GetAt(0))->m_strOriginalDir;
+	SetCurrentDirectory(strCurrentDir);
+
+	BOOL bWorking = finder.FindFile(_T("*.*"));
+	do
+	{
+		while (bWorking)
+		{
+			bWorking = finder.FindNextFile();
+			if(finder.IsDirectory() != 0) 
+			{//we found a dir
+				CString strDirName = finder.GetFileName();
+				if (strDirName != _T("..") && strDirName != _T("."))
+				{
+					CString strDir = strCurrentDir;
+					strDir += strDirName + _T('\\');
+					directoryArray.Add(strDir);
+					CCodeDirectories* pDirs = new CCodeDirectories;
+					ASSERT(pDirs);
+					pDirs->m_strOriginalDir = strDir;
+					listDirs.Add(pDirs);
+				}
+			}
+		}//while (bWorking)
+		if (directoryArray.GetSize() == 0)
+			break; //a normal end
+		strCurrentDir = directoryArray.GetAt(0);
+		directoryArray.RemoveAt(0);
+		SetCurrentDirectory(strCurrentDir);
+	}while(1);
+	
+	return listDirs.GetSize();
+}
+
+bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir)
+{
+	//return false - error
+	int nSize = listDirs.GetSize();
+	ASSERT(nSize > 0 && strNameStartTempDir.GetLength() > 0);
+
+	for (int i = 0; i < nSize; i++)
+	{
+		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
+		CString strDir = pDirs->m_strOriginalDir + strNameStartTempDir;
+		strDir += _T("\\");
+		if (!CreateDirectory(strDir, NULL))
+		{
+			void* cstr;
+			CString strErr;
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+				(LPWSTR) &cstr,
+				0,
+				NULL
+			);
+			strErr.Format(_T("Error: Cannot create a directory:\n%s\nerror: %s\n\n"), strDir, (TCHAR*)cstr);
+			LocalFree(cstr);
+			_tprintf(strErr);
+			return false;
+		}
+		pDirs->m_strTempDir = strDir;
+	}
+
 	return true;
 }
 
-bool Restore(CString strCurrentPath)
+bool CopyCodeFiles(CPtrArray& listDirs)
 {
+	//return false - error
+	ASSERT(listDirs.GetSize() > 0);
+
 	return true;
 }
