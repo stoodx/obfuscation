@@ -95,19 +95,25 @@ int Obfuscate(CString strRootPath)
 	//find codes files
 	if (FindCodesFiles(listDirs))
 	{
-		_tprintf(_T("Obfuscate operation - Done!\n\n"));
+		_tprintf(_T("Obfuscate operation - Done!\n"));
 	}
 	else
 		nResult = 1;
 
 	//clean the dir list 
 	nSizeDir = listDirs.GetSize();
-	for (int i = 0; i < nSizeDir; i++)
+	if (nSizeDir)
 	{
-		pDirs = (CCodeDirectories*)listDirs.GetAt(i);
-		delete pDirs;
+		int nFilesNumber = 0;
+		for (int i = 0; i < nSizeDir; i++)
+		{
+			pDirs = (CCodeDirectories*)listDirs.GetAt(i);
+			nFilesNumber += pDirs->m_listFiles.GetSize();
+			delete pDirs;
+		}
+		listDirs.RemoveAll();
+		_tprintf(_T("Obfuscated files number: %i\n\n"), nFilesNumber);
 	}
-	listDirs.RemoveAll();
 
 	return nResult;
 }
@@ -174,22 +180,70 @@ bool FindCodesFiles(CPtrArray& listDirs)
 	for (int i = 0; i < nSize; i++)
 	{
 		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
-		bool result[2] = {false};
-		result[0] = CheckFilesOnObfuscation(pDirs,  _T("*.C*"));
-		result[1] = CheckFilesOnObfuscation(pDirs,  _T("*.h*"));
-	}
+		bool result[4] = {false};
+		result[0] = FindFileByType(pDirs,  _T("*.h"));
+		result[1] = FindFileByType(pDirs,  _T("*.hpp"));
+		result[2] = FindFileByType(pDirs,  _T("*.c"));
+		result[3] = FindFileByType(pDirs,  _T("*.cpp"));
 
-	return true;
+		if (!result[1] && !result[0]  && !result[2]  && !result[3])
+		{
+			delete pDirs;
+			listDirs.RemoveAt(i);
+			nSize = listDirs.GetSize();
+			if (nSize == 0)
+			{
+				_tprintf(_T("Obfuscate error: No codes files.\n"));
+				return false;
+			}
+			i--;
+		}
+	}
+	nSize = listDirs.GetSize();
+	if (nSize == 0)
+	{
+		_tprintf(_T("Obfuscate error: No codes files.\n"));
+		return false;
+	}
+	else
+		return true;
 }
 
-bool CheckFilesOnObfuscation(CCodeDirectories* pDirs, CString strTypeFile)
+bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 {
 	//return true - we found files
 	ASSERT(pDirs && strTypeFile.GetLength() > 0);
+	CString strCurrentDir;
+	CStringArray directoryArray;
+	CFileFind finder;
 
-	return true;
+	strCurrentDir = pDirs->m_strOriginalDir;
+	SetCurrentDirectory(strCurrentDir);
+
+	BOOL bWorking = finder.FindFile(strTypeFile);
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		if(finder.IsDirectory() == 0) 
+		{//only file
+			CString strFilename = finder.GetFileName();
+			pDirs->m_listFiles.Add(strFilename);
+		}
+	}
+
+	if (pDirs->m_listFiles.GetSize() == 0)
+		return false;
+	else
+		return true;
 }
 
+
+int ParseFiles(CCodeDirectories* pDirs)
+{
+	ASSERT(pDirs);
+
+	return 0;
+}
 
 bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir)
 {
@@ -226,10 +280,3 @@ bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir)
 	return true;
 }
 
-bool CopyCodeFiles(CPtrArray& listDirs)
-{
-	//return false - error
-	ASSERT(listDirs.GetSize() > 0);
-
-	return true;
-}

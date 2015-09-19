@@ -25,7 +25,7 @@ int Obfuscate(CString strRootPath);
 int Restore(CString strRootPath);
 int FindSubDirs(CPtrArray& listDirs);
 bool FindCodesFiles(CPtrArray& listDirs);
-bool CheckFilesOnObfuscation(CCodeDirectories* pDirs, CString strTypeFile); 
+bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
+int ParseFiles(CCodeDirectories* pDirs);
 
 bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir);
-bool CopyCodeFiles(CPtrArray& listDirs);
