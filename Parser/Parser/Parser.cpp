@@ -92,10 +92,9 @@ int Obfuscate(CString strRootPath)
 	listDirs.Add(pDirs);
 	//Find all subdirs in root
 	FindSubDirs(listDirs);
-	//create the temp dirt, start with TEMP_ORIGINAL in root
-	if (CreateTempDirs(listDirs, _T("TEMP_ORIGINAL")))
+	//find codes files
+	if (FindCodesFiles(listDirs))
 	{
-		CopyCodeFiles(listDirs);
 		_tprintf(_T("Obfuscate operation - Done!\n\n"));
 	}
 	else
@@ -165,6 +164,32 @@ int FindSubDirs(CPtrArray& listDirs)
 	
 	return listDirs.GetSize();
 }
+
+
+bool FindCodesFiles(CPtrArray& listDirs)
+{
+	//return false - error
+	int nSize = listDirs.GetSize();
+	ASSERT(nSize > 0);
+	for (int i = 0; i < nSize; i++)
+	{
+		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
+		bool result[2] = {false};
+		result[0] = CheckFilesOnObfuscation(pDirs,  _T("*.C*"));
+		result[1] = CheckFilesOnObfuscation(pDirs,  _T("*.h*"));
+	}
+
+	return true;
+}
+
+bool CheckFilesOnObfuscation(CCodeDirectories* pDirs, CString strTypeFile)
+{
+	//return true - we found files
+	ASSERT(pDirs && strTypeFile.GetLength() > 0);
+
+	return true;
+}
+
 
 bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir)
 {

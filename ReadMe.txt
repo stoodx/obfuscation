@@ -21,7 +21,7 @@ Example:
 
 Parser c
 
-1) Create the temp directory TEMP_ORIGINAL for each a code directory.
+1) Create the temp directory TEMP_OBFUSCATION for each a code directory.
 2) Copy all codes files from the original directory to the temp directory
 3) Obfuscate codes files in the original directory
 4) Create the log file (not text) in the root directory, where are  wrote all changes 
@@ -47,7 +47,7 @@ Return values:
 
 3. Usage of obfuscation in MS VC++ project
 
-For example use the MSVC project - Test
+For example see the MSVC project: Test
 
 ///////////////////////////////////////////
 
