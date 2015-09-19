@@ -83,7 +83,7 @@ int Obfuscate(CString strRootPath)
 
 	CPtrArray listDirs;
 	int nSizeDir = 0;
-	int nResult = 1; //for eeror
+	int nResult = 1; //for error 
 
 	//save the rood dir to the list
 	CCodeDirectories* pDirs =  new CCodeDirectories;
