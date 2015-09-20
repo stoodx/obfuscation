@@ -8,6 +8,8 @@
 #define new DEBUG_NEW
 #endif
 
+const char* g_strSearchMacros = "ENCRYPT(x)";
+const char* g_strSearchString = "ENCRYPT(";
 
 // The one and only application object
 
@@ -268,7 +270,7 @@ int ParseFiles(CCodeDirectories* pDirs)
 	//return:
 	//-1 - error
 	//0 - no files
-	//>0 - files were parsed
+	//>0 - number of files, the files were parsed
 
 	ASSERT(pDirs);
 
@@ -309,23 +311,38 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	//return:
 	//-1 - error
 	//0 - file is not for obfuscation
-	//>0 - file was obfuscated.
+	//>0 - file length, file was obfuscated.
 
 	CFileException e;
 	CFile fileOriginal;
+	CString strFullPath;
+	int nFileLength = 0;
+	char* pBufFileOriginal = NULL; 
 
 	if (strPath.GetLength() == 0 || strFilename.GetLength() == 0)
 		return -1;
-	CString strFullPath = strPath + strFilename;
-	if (!fileOriginal.Open(strFullPath, CFile::modeWrite, &e))
+
+	strFullPath = strPath + strFilename;
+	if (!fileOriginal.Open(strFullPath, CFile::modeRead, &e))
 	{
-		_tprintf(_T("Cannot open the file: %s\nError=%i"), strFilename, FileError(&e));
+		_tprintf(_T("Cannot open the file: %s\nError=%i\n"), strFilename, FileError(&e));
 		return -1;
 	}
-
-
+	nFileLength = (int)fileOriginal.GetLength();
+	if (nFileLength == 0)
+	{
+		fileOriginal.Close();
+		_tprintf(_T("The file: %s has the null length.\n"), strFilename);
+		return 0;
+	}
+	pBufFileOriginal = new char[nFileLength + 1];
+	ASSERT(pBufFileOriginal);
+	memset(pBufFileOriginal, 0, nFileLength + 1);
+	fileOriginal.SeekToBegin(); 
+	fileOriginal.Read(pBufFileOriginal, nFileLength);
 	fileOriginal.Close();
 
+	delete [] pBufFileOriginal;
 	_tprintf(_T("Check the file: %s\n"), strFilename);
 
 	return 0;
