@@ -7,11 +7,13 @@ struct CCodeDirectories
 	CString m_strOriginalDir;
 	CString m_strTempDir;
 	CStringArray m_listFiles;
+	bool m_bTempDirCreated;
 
 	CCodeDirectories()
 	{
 		m_strOriginalDir = _T("");
 		m_strTempDir = _T("");
+		m_bTempDirCreated = false;
 	}
 
 	~CCodeDirectories()
@@ -27,5 +29,7 @@ int FindSubDirs(CPtrArray& listDirs);
 bool FindCodesFiles(CPtrArray& listDirs);
 bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
 int ParseFiles(CCodeDirectories* pDirs);
+int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated);
+int FileError(CFileException *e);
 
 bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir);

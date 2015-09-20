@@ -38,13 +38,16 @@ Return values:
 0 - OK
 1 - error, see console/output messages for details
 
-!!!!Notes for usage:
+Notes for usage:
   - Before start ot the project make its backup copy. 
-  - Before run of "Parser c" the old temp directory doesn't must exist in the code directory. 
+  - Before run of "Parser c" the old temp directory doesn't must exist in the code directory.
+  - If "Parser o" returns the error ("1"), then MS Visual Studio stops the build. 		 
 
 
 ///////////////////////////////////////////
+2. Encoder/Decoder
 
+///////////////////////////////////////////
 3. Usage of obfuscation in MS VC++ project
 
 For example see the MSVC project: Test
