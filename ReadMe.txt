@@ -47,6 +47,11 @@ Notes for usage:
 ///////////////////////////////////////////
 2. Encoder/Decoder
 
+- Encoder (obfuscater)
+
+Adds "_BLA_BLA" to the original string.
+
+
 ///////////////////////////////////////////
 3. Usage of obfuscation in MS VC++ project
 

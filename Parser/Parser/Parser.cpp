@@ -8,8 +8,9 @@
 #define new DEBUG_NEW
 #endif
 
-const char* g_strSearchMacros = "ENCRYPT(x)";
-const char* g_strSearchString = "ENCRYPT(";
+const char* g_strSearchMacrosA = "ENCRYPT(x)";
+const char* g_strSearchStringA = "ENCRYPT(";
+const TCHAR* g_strNameTempDir = _T("TEMP_OBFUSCATION\\");
 
 // The one and only application object
 
@@ -315,15 +316,22 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 
 	CFileException e;
 	CFile fileOriginal;
-	CString strFullPath;
+	CString strFullPathName;
+	CString strPathTempDir;
 	int nFileLength = 0;
-	char* pBufFileOriginal = NULL; 
+	char* pBufFileOriginalA = NULL;
+	CStringA strFileOriginalA(""), strFileObfuscatedA(""); 
+	int index = 0;
+	int nLenEncrypt = 0;
+	bool bObfuscation = false;
+	CString strErr;
 
 	if (strPath.GetLength() == 0 || strFilename.GetLength() == 0)
 		return -1;
 
-	strFullPath = strPath + strFilename;
-	if (!fileOriginal.Open(strFullPath, CFile::modeRead, &e))
+	strPathTempDir = strPath + g_strNameTempDir;
+	strFullPathName = strPath + strFilename;
+	if (!fileOriginal.Open(strFullPathName, CFile::modeRead, &e))
 	{
 		_tprintf(_T("Cannot open the file: %s\nError=%i\n"), strFilename, FileError(&e));
 		return -1;
@@ -335,17 +343,133 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 		_tprintf(_T("The file: %s has the null length.\n"), strFilename);
 		return 0;
 	}
-	pBufFileOriginal = new char[nFileLength + 1];
-	ASSERT(pBufFileOriginal);
-	memset(pBufFileOriginal, 0, nFileLength + 1);
+	pBufFileOriginalA = new char[nFileLength + 1];
+	ASSERT(pBufFileOriginalA);
+	memset(pBufFileOriginalA, 0, nFileLength + 1);
 	fileOriginal.SeekToBegin(); 
-	fileOriginal.Read(pBufFileOriginal, nFileLength);
+	fileOriginal.Read(pBufFileOriginalA, nFileLength);
 	fileOriginal.Close();
+	strFileOriginalA = pBufFileOriginalA;
+	delete [] pBufFileOriginalA;
+	nFileLength = 0;
 
-	delete [] pBufFileOriginal;
-	_tprintf(_T("Check the file: %s\n"), strFilename);
+	//check on the macros
+	index = strFileOriginalA.Find(g_strSearchMacrosA);
+	if (index != -1)
+	{//we found the macros
+		int nLenMacros = strlen(g_strSearchMacrosA);
+		strFileObfuscatedA += strFileOriginalA.Left(index + nLenMacros);
+		strFileOriginalA = strFileOriginalA.Right(strFileOriginalA.GetLength() - nLenMacros - index);
+	}
 
-	return 0;
+	//check on obfuscation on "encrypt("
+	nLenEncrypt = strlen(g_strSearchStringA);
+	while((index = strFileOriginalA.Find(g_strSearchStringA)) != -1) 
+	{
+		//find "encrypt("
+		strFileObfuscatedA += strFileOriginalA.Left(index + nLenEncrypt);
+		strFileOriginalA = strFileOriginalA.Right(strFileOriginalA.GetLength() - index - nLenEncrypt);
+		//find the string for obfuscation
+		char c;
+		while (true) //the first "
+		{
+			c = strFileOriginalA.GetAt(0);
+			strFileObfuscatedA += c;
+			strFileOriginalA = strFileOriginalA.Right(strFileOriginalA.GetLength() - 1);
+			if (c == '\"')
+				break;
+		}
+		CStringA strForObfuscationA("");
+		while (true) //the second "
+		{
+			c = strFileOriginalA.GetAt(0);
+			strFileOriginalA = strFileOriginalA.Right(strFileOriginalA.GetLength() - 1);
+			if (c == '\"')
+				break;
+			strForObfuscationA += c;
+		}
+		strFileObfuscatedA += Encoder(strForObfuscationA) + '\"';
+		bObfuscation = true;
+	}
+	//add the last part of file
+	if (bObfuscation)
+	{
+		strFileObfuscatedA += strFileOriginalA;
+		//create temp dir
+		if (!bTempDirCreated)
+		{
+			if (!CreateTempDir(strPathTempDir))
+				return -1; //did not create the temp dir
+			bTempDirCreated = true;
+		}
+		//copy an original file to the temp dir
+		CString strPathTempDirFile = strPathTempDir + strFilename;
+		if (!CopyFile(strFullPathName, strPathTempDirFile, TRUE))
+		{
+			void* cstr;
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+				(LPWSTR) &cstr,
+				0,
+				NULL
+			);
+			strErr.Format(_T("Obfuscate error: Cannot copy a file:\n%s\nto\n%s\nerror: %s\n"), 
+				strFullPathName, strPathTempDirFile, (TCHAR*)cstr);
+			LocalFree(cstr);
+			_tprintf(strErr);
+			return -1;
+		}
+		_tprintf(_T("The original file %s was copied to %s\n"), strFilename, strPathTempDir);
+		//delete the original file
+		if (!DeleteFile(strFullPathName))
+		{
+			void* cstr;
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+				(LPWSTR) &cstr,
+				0,
+				NULL
+			);
+			strErr.Format(_T("Obfuscate error: Cannot delete a file:\n%s\nerror: %s\n"), 
+				strFullPathName, (TCHAR*)cstr);
+			LocalFree(cstr);
+			_tprintf(strErr);
+			return -1;
+		}
+		_tprintf(_T("The original file %s was deleted from %s\n"), strFilename, strPathTempDir);
+		//Create the obfuscated file
+		if (!fileOriginal.Open(strFullPathName, CFile::modeCreate, &e))
+		{
+			_tprintf(_T("Cannot create the file: %s\nError=%i\n"), strFilename, FileError(&e));
+			return -1;
+		}
+		nFileLength = strFileObfuscatedA.GetLength();
+		fileOriginal.Write(strFileObfuscatedA.GetBuffer(), nFileLength);
+		fileOriginal.Flush();
+		fileOriginal.Close();
+	}
+
+	if ( bObfuscation)
+	{
+		_tprintf(_T("The file: %s -> created and obfuscated\n"), strFilename);
+	}
+	else
+	{
+		_tprintf(_T("The file: %s -> passed\n"), strFilename);
+	}
+	return nFileLength;
+}
+
+CStringA Encoder(CStringA strText)
+{
+	strText += strText + "_BLA_BLA";
+	return strText;
 }
 
 int FileError(CFileException *e)
@@ -417,39 +541,28 @@ int FileError(CFileException *e)
 	}
 }
 
-
-bool CreateTempDirs(CPtrArray& listDirs, CString strNameStartTempDir)
+bool CreateTempDir(CString strPath)
 {
 	//return false - error
-	int nSize = listDirs.GetSize();
-	ASSERT(nSize > 0 && strNameStartTempDir.GetLength() > 0);
-
-	for (int i = 0; i < nSize; i++)
+	
+	if (!CreateDirectory(strPath, NULL))
 	{
-		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
-		CString strDir = pDirs->m_strOriginalDir + strNameStartTempDir;
-		strDir += _T("\\");
-		if (!CreateDirectory(strDir, NULL))
-		{
-			void* cstr;
-			CString strErr;
-			FormatMessage(
-				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-				NULL,
-				GetLastError(),
-				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
-				(LPWSTR) &cstr,
-				0,
-				NULL
-			);
-			strErr.Format(_T("Error: Cannot create a directory:\n%s\nerror: %s\n\n"), strDir, (TCHAR*)cstr);
-			LocalFree(cstr);
-			_tprintf(strErr);
-			return false;
-		}
-		pDirs->m_strTempDir = strDir;
+		void* cstr;
+		CString strErr;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL,
+			GetLastError(),
+			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+			(LPWSTR) &cstr,
+			0,
+			NULL
+		);
+		strErr.Format(_T("Obfuscate error: Cannot create a directory:\n%s\n  error: %s\n"), strPath, (TCHAR*)cstr);
+		LocalFree(cstr);
+		_tprintf(strErr);
+		return false;
 	}
-
 	return true;
 }
 
