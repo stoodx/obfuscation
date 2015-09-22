@@ -8,6 +8,8 @@
 #define new DEBUG_NEW
 #endif
 
+#define __NO__OBFUSCATION
+
 const char* g_strSearchMacrosA = "ENCRYPT(x)";
 const char* g_strSearchStringA = "ENCRYPT(";
 const TCHAR* g_strNameTempDir = _T("TEMP_OBFUSCATION\\");
@@ -352,6 +354,14 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	strFileOriginalA = pBufFileOriginalA;
 	delete [] pBufFileOriginalA;
 	nFileLength = 0;
+
+	//check on _NO_OBFUSCATION
+	index = strFileOriginalA.Find("#define __NO__OBFUSCATION");
+	if (index != -1)
+	{//we must skip that file
+		_tprintf(_T("The file: %s -> passed\n"), strFilename);
+		return 0;
+	}
 
 	//check on the macros
 	index = strFileOriginalA.Find(g_strSearchMacrosA);
