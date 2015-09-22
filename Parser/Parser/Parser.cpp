@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Parser.h"
+#include "Arch.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,6 +14,7 @@
 const char* g_strSearchMacrosA = "ENCRYPT(x)";
 const char* g_strSearchStringA = "ENCRYPT(";
 const TCHAR* g_strNameTempDir = _T("TEMP_OBFUSCATION\\");
+extern TCHAR* g_strSerialFilename;
 
 // The one and only application object
 
@@ -47,8 +49,9 @@ err:
 			}
 			else
 			{
-				TCHAR strCurrentPath[MAX_PATH] = {0};
-				GetCurrentDirectory(MAX_PATH, strCurrentPath);
+				TCHAR strCurrentPath[MAX_PATH * 2] = {0};
+				GetCurrentDirectory(MAX_PATH * 2, strCurrentPath);
+				_tcscat_s(strCurrentPath, MAX_PATH * 2, _T("\\"));
 				TCHAR ch =  argv[1][0];
 				switch(ch) 
 				{
@@ -95,7 +98,7 @@ int Obfuscate(CString strRootPath)
 	//save the rood dir to the list
 	CCodeDirectories* pDirs =  new CCodeDirectories;
 	ASSERT(pDirs);
-	pDirs->m_strOriginalDir = strRootPath + _T("\\");
+	pDirs->m_strOriginalDir = strRootPath;
 	listDirs.Add(pDirs);
 	//Find all subdirs in root
 	FindSubDirs(listDirs);
@@ -153,6 +156,7 @@ int Restore(CString strRootPath)
 	//return:
 	//0 - normal
 	//1 - error
+
 
 	int nResult = 0;
 	return nResult;
