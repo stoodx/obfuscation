@@ -359,7 +359,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	index = strFileOriginalA.Find("#define __NO__OBFUSCATION");
 	if (index != -1)
 	{//we must skip that file
-		_tprintf(_T("The file: %s -> passed\n"), strFilename);
+		_tprintf(_T("File: %s -> passed\n"), strFilename);
 		return 0;
 	}
 
@@ -411,6 +411,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 			if (!CreateTempDir(strPathTempDir))
 				return -1; //did not create the temp dir
 			bTempDirCreated = true;
+			_tprintf(_T("Temp directory\n%s was created\n"), strPathTempDir);
 		}
 		//copy an original file to the temp dir
 		CString strPathTempDirFile = strPathTempDir + strFilename;
@@ -432,33 +433,14 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 			_tprintf(strErr);
 			return -1;
 		}
-		_tprintf(_T("The original file %s was copied to %s\n"), strFilename, strPathTempDir);
-		//delete the original file
-		if (!DeleteFile(strFullPathName))
+		_tprintf(_T("Original file %s was copied to %s\n"), strFilename, strPathTempDir);
+		//modify an original file
+		if (!fileOriginal.Open(strFullPathName, CFile::modeReadWrite | CFile::shareDenyNone, &e))
 		{
-			void* cstr;
-			FormatMessage(
-				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-				NULL,
-				GetLastError(),
-				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
-				(LPWSTR) &cstr,
-				0,
-				NULL
-			);
-			strErr.Format(_T("Obfuscate error: Cannot delete a file:\n%s\nerror: %s\n"), 
-				strFullPathName, (TCHAR*)cstr);
-			LocalFree(cstr);
-			_tprintf(strErr);
+			_tprintf(_T("Cannot open the file  %s for modification.\nError=%i\n"), strFilename, FileError(&e));
 			return -1;
 		}
-		_tprintf(_T("The original file %s was deleted from %s\n"), strFilename, strPathTempDir);
-		//Create the obfuscated file
-		if (!fileOriginal.Open(strFullPathName, CFile::modeCreate, &e))
-		{
-			_tprintf(_T("Cannot create the file: %s\nError=%i\n"), strFilename, FileError(&e));
-			return -1;
-		}
+		fileOriginal.SeekToBegin(); 
 		nFileLength = strFileObfuscatedA.GetLength();
 		fileOriginal.Write(strFileObfuscatedA.GetBuffer(), nFileLength);
 		fileOriginal.Flush();
@@ -467,11 +449,11 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 
 	if ( bObfuscation)
 	{
-		_tprintf(_T("The file: %s -> created and obfuscated\n"), strFilename);
+		_tprintf(_T("File: %s -> created and obfuscated\n"), strFilename);
 	}
 	else
 	{
-		_tprintf(_T("The file: %s -> passed\n"), strFilename);
+		_tprintf(_T("File: %s -> passed\n"), strFilename);
 	}
 	return nFileLength;
 }

@@ -39,9 +39,10 @@ Return values:
 1 - error, see console/output messages for details
 
 Notes for usage:
-  - Parser will skip the file if it will meet "#define __NO__OBFUSCATION".	
+  - Parser will skip the file if it will meet "#define __NO__OBFUSCATION".
+  - Parser doesn't make an obfuscation for single character, only for a string. 	
   - Before start ot the project make its backup copy. 
-  - Before run of "Parser c" the old temp directory doesn't must exist in the code directory.
+  - Before run of "Parser c" the old temp directory TEMP_OBFUSCATION doesn't must exist in the code directory.
   - If "Parser o" returns the error ("1"), then MS Visual Studio stops the build. 		 
 
 
