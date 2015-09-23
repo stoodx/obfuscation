@@ -14,7 +14,7 @@
 const char* g_strSearchMacrosA = "ENCRYPT(x)";
 const char* g_strSearchStringA = "ENCRYPT(";
 const TCHAR* g_strNameTempDir = _T("TEMP_OBFUSCATION\\");
-extern TCHAR* g_strSerialFilename;
+extern const TCHAR* g_strArchFilename;
 
 // The one and only application object
 
@@ -80,7 +80,7 @@ err:
 		nRetCode = 1;
 	}
 
-	_tprintf(_T("Obfuscated finish: %s\n\n"), nRetCode == 1 ? L"Error" : L"Normal");
+	_tprintf(_T("\nObfuscated finish: %s\n\n"), nRetCode == 1 ? L"Error" : L"Normal");
 	return nRetCode;
 }
 
@@ -128,13 +128,16 @@ int Obfuscate(CString strRootPath)
 			}
 		}
 	}
-	//else
-	//	nResult = 1;
 
 	//clean the dir list 
 	nSizeDir = listDirs.GetSize();
 	if (nSizeDir)
 	{
+		if (!nResult)
+		{//archive  result
+			CArch arch;
+			nResult = arch.WriteArch(strRootPath, &listDirs);
+		}
 		int nFilesNumber = 0;
 		for (int i = 0; i < nSizeDir; i++)
 		{
@@ -145,7 +148,7 @@ int Obfuscate(CString strRootPath)
 		listDirs.RemoveAll();
 		if (!nResult) //no error
 		{
-			_tprintf(_T("Obfuscate operation - Done!\nObfuscated files number: %i\n"), nFilesNumber);
+			_tprintf(_T("Obfuscate operation - completed!\nObfuscated files number: %i\n"), nFilesNumber);
 		}
 	}
 	return nResult;
@@ -157,8 +160,95 @@ int Restore(CString strRootPath)
 	//0 - normal
 	//1 - error
 
-
 	int nResult = 0;
+	CPtrArray listDirs;
+	CArch arch;
+	CString strErr;
+
+	//restore the list dirs
+	_tprintf(_T("Restore the archive of obfuscation\n"));
+	if ((nResult = arch.ReadArch(strRootPath, &listDirs)) != 1) 
+	{//no error
+		//delete the arch file
+		CString strArchPath = strRootPath + g_strArchFilename;
+		if (DeleteFile(strArchPath))
+		{//no err
+			_tprintf(_T("Arch file %s was deleted\n"), g_strArchFilename);
+		}
+		else
+		{//err
+			void* cstr;
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+				(LPWSTR) &cstr,
+				0,
+				NULL
+			);
+			strErr.Format(_T("Obfuscate error: Cannot delete the arch file:\n%s\nerror: %s\nmake it by hand\n"), 
+				strArchPath, (TCHAR*)cstr);
+			LocalFree(cstr);
+			_tprintf(strErr);
+		}
+		//restore the original files
+		_tprintf(_T("Restore the original files\n"));
+		while (listDirs.GetSize() != 0)
+		{
+			CCodeDirectories* pDirs = (CCodeDirectories*)listDirs.GetAt(0);
+			CString strTemDir = pDirs->m_strOriginalDir + g_strNameTempDir;
+			_tprintf(_T("Original direrctory: %s\n"), pDirs->m_strOriginalDir);
+			while(pDirs->m_listFiles.GetSize() != 0)
+			{
+				CString strFilename = pDirs->m_listFiles.GetAt(0);
+				CString strFullTempDirFilename = strTemDir + strFilename;
+				CString strFullOriginalFilename = pDirs->m_strOriginalDir + strFilename;
+				if (CopyFile(strFullTempDirFilename, strFullOriginalFilename, FALSE))
+				{//no err
+					_tprintf(_T("%s -> restored.\n"), strFilename); 
+				}
+				else
+				{//err
+					void* cstr;
+					FormatMessage(
+						FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+						NULL,
+						GetLastError(),
+						MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+						(LPWSTR) &cstr,
+						0,
+						NULL
+					);
+					strErr.Format(_T("Obfuscate error: Cannot copy the file:\nto %s\nerror: %s\nmake it by hand\n"), 
+						strFullTempDirFilename,  strFullOriginalFilename, (TCHAR*)cstr);
+					LocalFree(cstr);
+					_tprintf(strErr);
+					nResult = 1;
+				}
+				pDirs->m_listFiles.RemoveAt(0);
+				if (nResult == 0)
+				{//delete the temp file
+					DeleteFile(strFullTempDirFilename);
+				}
+			}
+			delete pDirs;
+			listDirs.RemoveAt(0);
+			if (nResult == 0)
+			{//delete temp dir
+				RemoveDirectory(strTemDir);
+			}
+		}
+		if (nResult == 0)
+		{
+			_tprintf(_T("Resore operation - completed!\n"));
+		}
+		else
+		{
+			_tprintf(_T("Resore operation is not completed!\nFinish it by hand\n"));
+		}
+	}
+
 	return nResult;
 }
 
@@ -287,7 +377,7 @@ int ParseFiles(CCodeDirectories* pDirs)
 		_tprintf(_T("No files for obfuscation in %s\n"), pDirs->m_strOriginalDir);
 		return 0;
 	}
-	_tprintf(_T("Parsing files in %s\n"), pDirs->m_strOriginalDir);
+	_tprintf(_T("Parsing files in %s:\n"), pDirs->m_strOriginalDir);
 	for (int i = 0; i < nSize; i++)
 	{
 		int nRet = ParseFile(pDirs->m_strOriginalDir, pDirs->m_listFiles.GetAt(i), pDirs->m_bTempDirCreated);
@@ -363,7 +453,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	index = strFileOriginalA.Find("#define __NO__OBFUSCATION");
 	if (index != -1)
 	{//we must skip that file
-		_tprintf(_T("File: %s -> passed\n"), strFilename);
+		_tprintf(_T("%s -> passed\n"), strFilename);
 		return 0;
 	}
 
@@ -415,7 +505,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 			if (!CreateTempDir(strPathTempDir))
 				return -1; //did not create the temp dir
 			bTempDirCreated = true;
-			_tprintf(_T("Temp directory\n%s was created\n"), strPathTempDir);
+			_tprintf(_T("Temp directory:\n%s\n"), strPathTempDir);
 		}
 		//copy an original file to the temp dir
 		CString strPathTempDirFile = strPathTempDir + strFilename;
@@ -437,7 +527,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 			_tprintf(strErr);
 			return -1;
 		}
-		_tprintf(_T("Original file %s was copied to %s\n"), strFilename, strPathTempDir);
+		_tprintf(_T("%s was copied to Temp directory\n"), strFilename);
 		//modify an original file
 		if (!fileOriginal.Open(strFullPathName, CFile::modeReadWrite | CFile::shareDenyNone, &e))
 		{
@@ -453,11 +543,11 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 
 	if ( bObfuscation)
 	{
-		_tprintf(_T("File: %s -> created and obfuscated\n"), strFilename);
+		_tprintf(_T("%s -> obfuscated\n"), strFilename);
 	}
 	else
 	{
-		_tprintf(_T("File: %s -> passed\n"), strFilename);
+		_tprintf(_T("%s -> passed\n"), strFilename);
 	}
 	return nFileLength;
 }

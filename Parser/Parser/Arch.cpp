@@ -6,7 +6,7 @@
 #include "Arch.h"
 #include "Parser.h"
 
-const TCHAR* g_strSerialFilename = _T("Serial_obfuscate.obf");
+const TCHAR* g_strArchFilename = _T("arch_obfuscate.obf");
 
 // CArch
 IMPLEMENT_SERIAL(CArch, CObject, 1)
@@ -22,30 +22,57 @@ CArch::~CArch()
 
 
 // CArch member functions
-bool CArch::WriteArch(CString strPath, CPtrArray* pArr)
+
+int CArch::WriteArch(CString strPath, CPtrArray* pArr)
 {
+	//return 1 - error
+
 	ASSERT(pArr);
 
 	CFileException e;
 	CFile f;
 	if (strPath.GetLength() == 0)
-		return false;
+		return 1;
 
 	m_pArr = pArr;
-
-	CString strFullPath = strFullPath + g_strSerialFilename;
+	CString strFullPath = strPath+ g_strArchFilename;
 
 	if (!f.Open(strFullPath, CFile::modeCreate | CFile::modeWrite | 
 		CFile::typeBinary, &e))
 	{
 		FileErrorArch(&e);
-		return false;
+		return 1;
 	}
 	CArchive ar(&f, CArchive::store);
 	Serialize(ar);
-	f.Close();
-	return true;
+	_tprintf(_T("Arch file was created: %s\n"), strFullPath);
+	return 0;
+}
 
+int CArch::ReadArch(CString strPath, CPtrArray* pArr)
+{
+	//return 1 - error
+	ASSERT(pArr);
+
+	CFileException e;
+	CFile f;
+	if (strPath.GetLength() == 0)
+		return 1;
+	m_pArr = pArr;
+	CString strFullPath = strPath + g_strArchFilename;
+
+	if (!f.Open(strFullPath, CFile::modeRead | CFile::typeBinary, &e))
+	{
+		if (FileErrorArch(&e) == CFileException::fileNotFound)
+		{
+			_tprintf(_T("The project does not keep the obfuscated files.\n"));
+		}
+		return 1;
+	}
+	CArchive ar(&f, CArchive::load);
+	Serialize(ar);
+//	f.Close();
+	return 0;
 }
 
 int CArch::FileErrorArch(CFileException *e)
@@ -63,7 +90,7 @@ int CArch::FileErrorArch(CFileException *e)
 		}
 		case CFileException::fileNotFound:     
 		{
-			_tprintf(_T("Arch file error: fileNotFound\n"));
+			_tprintf(_T("File %s is not found\n"), g_strArchFilename);
 			return CFileException::fileNotFound;
 		}
 		case CFileException::badPath:       

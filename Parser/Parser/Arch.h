@@ -11,7 +11,8 @@ public:
 	CArch();
 	virtual ~CArch();
 
-	bool WriteArch(CString strPath, CPtrArray* pArr);
+	int WriteArch(CString strPath, CPtrArray* pArr);
+	int ReadArch(CString strPath, CPtrArray* pArr);
 private:
 	int FileErrorArch(CFileException *e);
 	void Serialize(CArchive &ar);
