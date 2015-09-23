@@ -66,8 +66,10 @@ int CArch::ReadArch(CString strPath, CPtrArray* pArr)
 		if (FileErrorArch(&e) == CFileException::fileNotFound)
 		{
 			_tprintf(_T("The project does not keep the obfuscated files.\n"));
+			return 0;
 		}
-		return 1;
+		else
+		 return 1;
 	}
 	CArchive ar(&f, CArchive::load);
 	Serialize(ar);

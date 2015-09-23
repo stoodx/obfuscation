@@ -169,6 +169,8 @@ int Restore(CString strRootPath)
 	_tprintf(_T("Restore the archive of obfuscation\n"));
 	if ((nResult = arch.ReadArch(strRootPath, &listDirs)) != 1) 
 	{//no error
+		if (listDirs.GetSize() == 0)
+			return 0; // no obfucation files
 		//delete the arch file
 		CString strArchPath = strRootPath + g_strArchFilename;
 		if (DeleteFile(strArchPath))

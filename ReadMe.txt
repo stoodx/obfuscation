@@ -41,12 +41,10 @@ Return values:
 Notes for usage:
   - Parser will skip the file if it will meet "#define __NO__OBFUSCATION".
   - Parser doesn't make an obfuscation for single character, only for a string. 	
-  - Before start ot the project make its backup copy. 
   - Before run of "Parser o" the old temp directory TEMP_OBFUSCATION doesn't must exist in the code directory.
-  - If "Parser o" returns the error ("1"), then MS Visual Studio stops the build. 		 
 
 
-Example for log:
+Example for logs:
 
 
 D:\Work\obfuscation\trunk\Test\Test>parser o
@@ -111,6 +109,18 @@ Adds "_BLA_BLA" to the original string.
 3. Usage of obfuscation in MS VC++ project
 
 For example see the MSVC project: Test
+
+Notes before usage:
+  - Parser will skip the file if it will meet "#define __NO__OBFUSCATION".
+  - Parser doesn't make an obfuscation for single character, only for a string. 	
+  - Before start ot the project make its backup copy. 
+  - Before run of "Parser o" the old temp directory TEMP_OBFUSCATION doesn't must exist in the code directory.
+  - If "Parser o" returns the error ("1"), then MS Visual Studio stops the build. 
+  - If "Parser r" returns the error ("1"), then the build will be incomplete. 		 
+
+1)
+
+
 
 Example of building log:
 

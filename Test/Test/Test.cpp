@@ -58,9 +58,9 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	CSetting2 setting2(&setting);
 
-	std::wcout << ENCRYPT(L"key4") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
-	std::wcout << ENCRYPT(L"key5") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
-	std::wcout << ENCRYPT(L"key6") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key5")) << std::endl; // output: "value6"
+	std::wcout << ENCRYPT(L"key4") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
+	std::wcout << ENCRYPT(L"key5") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
+	std::wcout << ENCRYPT(L"key6") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value6"
 
 
 	std::system("PAUSE");
