@@ -52,15 +52,16 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	setting.add(ENCRYPT(L"key2"), ENCRYPT(L"value2"));
 	setting.add(ENCRYPT(L"key3"), ENCRYPT(L"value3"));
 	
-	std::wcout << ENCRYPT(L"key1") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key1")) << std::endl; // output: "value1"
-	std::wcout << ENCRYPT(L"key2") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key2")) << std::endl; // output: "value2"
-	std::wcout << ENCRYPT(L"key3") << ENCRYPT(L" ") << setting.get(ENCRYPT(L"key3")) << std::endl << std::endl; // output: "value3"
+
+	std::wcout << setting.get(ENCRYPT(L"key1")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key1")) << std::endl; // output: "value1"
+	std::wcout << setting.get(ENCRYPT(L"key2")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key2")) << std::endl; // output: "value2"
+	std::wcout << setting.get(ENCRYPT(L"key3")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key3")) << std::endl << std::endl; // output: "value3"
 
 	CSetting2 setting2(&setting);
 
-	std::wcout << ENCRYPT(L"key4") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
-	std::wcout << ENCRYPT(L"key5") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
-	std::wcout << ENCRYPT(L"key6") << ENCRYPT(L" ") << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value6"
+	std::wcout << setting.get(ENCRYPT(L"key4")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
+	std::wcout << setting.get(ENCRYPT(L"key5")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
+	std::wcout << setting.get(ENCRYPT(L"key6")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value6"
 
 
 	std::system("PAUSE");

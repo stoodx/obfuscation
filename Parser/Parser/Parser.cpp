@@ -556,8 +556,17 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 
 CStringA Encoder(CStringA strText)
 {
-	strText += strText + "_BLA_BLA";
-	return strText;
+	//plus 2 to each char
+	int nLen = strText.GetLength();
+	CStringA str("");
+	for (int i = 0; i < nLen; i++)
+	{
+		char ch = strText.GetAt(i);
+		if (ch >= '\"')
+			ch += 2;
+		str += ch;
+	}
+	return str;
 }
 
 int FileError(CFileException *e)

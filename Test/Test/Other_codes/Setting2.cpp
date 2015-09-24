@@ -23,5 +23,5 @@ CSetting2::~CSetting2(void)
 wchar_t* CSetting2::get(wchar_t* strKey)
 {
 
-	return m_setting->get(strKey);
+	return m_setting->getMap(strKey);
 }
