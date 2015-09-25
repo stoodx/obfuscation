@@ -61,7 +61,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	std::wcout << setting.get(ENCRYPT(L"key4")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
 	std::wcout << setting.get(ENCRYPT(L"key5")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
-	std::wcout << setting.get(ENCRYPT(L"key6")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value6"
+	std::wcout << setting.get(ENCRYPT(L"key6")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key6")) << std::endl; // output: "value6"
 
 
 	std::system("PAUSE");

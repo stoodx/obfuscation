@@ -69,7 +69,7 @@ For obfuscation the project must go three stages:
 
 Steps for setting:
 
-1)Move parser.exe from Parser (or \Test\Test) project to the root of your project (not Solutions). 
+1)Move parser.exe from Parser (or \Test\Test) project to the root of your project (not Solution). 
 If your solution has several projects for obfuscation, then parser should be in those projects.
 
 2)Open your project in MSVC.
@@ -168,7 +168,7 @@ key3 value3
 
 key4 value4
 key5 value5
-key6 value5
+key6 value6
 Для продолжения нажмите любую клавишу . . .
 
 ///////////////////////////////////////////
