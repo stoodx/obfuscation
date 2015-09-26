@@ -1,12 +1,12 @@
 # obfuscation
 ////////////////////////////////////////////////
 Content
-1. Parser file
+1. Parser  of files
 2. Encoder/Decoder
 3. Usage of obfuscation in MS VC++ project
 
 ////////////////////////////////////////
-1. Parser file
+1. Parser of files
 
 Usage
  Parser <operation>
@@ -99,14 +99,14 @@ Notes before usage:
   - Parser will skip the file if it will meet "#define __NO__OBFUSCATION". You should not use that directive 
 	in the following combinations: "//#define __NO__OBFUSCATION" or "/*#define __NO__OBFUSCATION*/".
   - Parser doesn't make an obfuscation for single character, only for a string. 	
-  - Before start ot the project make its backup copy (recommend). 
+  - Before start ot the project make its backup copy (optional). 
   - Before run of "Parser o" the old temp directory TEMP_OBFUSCATION doesn't must exist in the code directory.
   - If "Parser o" returns the error ("1"), then MS Visual Studio stops the build. 
   - If "Parser r" returns the error ("1"), then the build will be incomplete. 
   - Builded project cannot be used for debuging, because the source code will not fit the builded code. 			 
 
 
-Example of building log:
+Example of output log:
 
 1>------ Rebuild All started: Project: Test, Configuration: Debug Win32 ------
 1>  
