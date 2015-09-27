@@ -38,12 +38,6 @@ Return values:
 0 - OK
 1 - error, see console/output messages for details
 
-Notes for usage:
-  - Parser will skip the file if it will meet "#define __NO__OBFUSCATION".
-  - Parser doesn't make an obfuscation for single character, only for a string. 	
-  - Before run of "Parser o" the old temp directory TEMP_OBFUSCATION doesn't must exist in the code directory.
-
-
 ///////////////////////////////////////////
 2. Encoder/Decoder
 
@@ -92,7 +86,7 @@ to enable the code restoring or set "No" for its disabling.
 
 and ENCRYPT(....) for obfuscated strings, for example, see Test project.
 
-8)Build the project, use the building log for control.
+8)Build the project, use the output log for control.
 
 
 Notes before usage:
@@ -106,7 +100,7 @@ Notes before usage:
   - Builded project cannot be used for debuging, because the source code will not fit the builded code. 			 
 
 
-Example of output log:
+Example of the output log:
 
 1>------ Rebuild All started: Project: Test, Configuration: Debug Win32 ------
 1>  
