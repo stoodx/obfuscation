@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="unittest|Win32">
+      <Configuration>unittest</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B3FDD433-DDEB-4FCB-AC5A-D230DAAA9B02}</ProjectGuid>
@@ -31,6 +35,11 @@
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='unittest|Win32'">
+    <PlatformToolset>v110</PlatformToolset>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -50,6 +59,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='unittest|Win32'">
+    <LibraryPath>$(ProjectDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)gtest;$(ProjectDir)gtest\internal;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,12 +108,41 @@
       <Command>copy /Y  ..\Release\parser.exe  /B ..\..\Test\Test</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='unittest|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_GOOGLE_TEST;VARIADIC_MAX=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>gtestd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arch.h" />
-    <ClInclude Include="Parser.h" />
+    <ClInclude Include="gtest\gtest-death-test.h" />
+    <ClInclude Include="gtest\gtest-message.h" />
+    <ClInclude Include="gtest\gtest-param-test.h" />
+    <ClInclude Include="gtest\gtest-printers.h" />
+    <ClInclude Include="gtest\gtest-spi.h" />
+    <ClInclude Include="gtest\gtest-test-part.h" />
+    <ClInclude Include="gtest\gtest-typed-test.h" />
+    <ClInclude Include="gtest\gtest.h" />
+    <ClInclude Include="gtest\gtest_pred_impl.h" />
+    <ClInclude Include="gtest\gtest_prod.h" />
+    <ClInclude Include="gtest\internal\gtest-death-test-internal.h" />
+    <ClInclude Include="gtest\internal\gtest-filepath.h" />
+    <ClInclude Include="gtest\internal\gtest-internal.h" />
+    <ClInclude Include="gtest\internal\gtest-linked_ptr.h" />
+    <ClInclude Include="gtest\internal\gtest-param-util-generated.h" />
+    <ClInclude Include="gtest\internal\gtest-param-util.h" />
+    <ClInclude Include="gtest\internal\gtest-port.h" />
+    <ClInclude Include="gtest\internal\gtest-string.h" />
+    <ClInclude Include="gtest\internal\gtest-tuple.h" />
+    <ClInclude Include="gtest\internal\gtest-type-util.h" />
+    <ClInclude Include="ParserEndgine.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -108,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Arch.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="ParserEndgine.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -115,6 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Parser.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gtest\gtest-param-test.h.pump" />
+    <None Include="gtest\internal\gtest-param-util-generated.h.pump" />
+    <None Include="gtest\internal\gtest-tuple.h.pump" />
+    <None Include="gtest\internal\gtest-type-util.h.pump" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

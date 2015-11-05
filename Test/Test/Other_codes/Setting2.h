@@ -14,9 +14,9 @@ public:
 
 	void init()
 	{
-		m_str4 = ENCRYPT(L"mg{6");
-		m_str5 = ENCRYPT(L"mg{7");
-		m_str6 = ENCRYPT(L"mg{8");
+		m_str4 = ENCRYPT(L"key4");
+		m_str5 = ENCRYPT(L"key5");
+		m_str6 = ENCRYPT(L"key6");
 	}
 
 private:

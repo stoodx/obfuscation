@@ -9,9 +9,9 @@ CSetting2::CSetting2(CSetting* setting)
 	init();
 
 	m_setting = setting;
-	m_setting->add(m_str4.GetBuffer(), ENCRYPT(L"xcnwg6"));
-	m_setting->add(m_str5.GetBuffer(), ENCRYPT(L"xcnwg7"));
-	m_setting->add(m_str6.GetBuffer(), ENCRYPT(L"xcnwg8"));
+	m_setting->add(m_str4.GetBuffer(), ENCRYPT(L"value4"));
+	m_setting->add(m_str5.GetBuffer(), ENCRYPT(L"value5"));
+	m_setting->add(m_str6.GetBuffer(), ENCRYPT(L"value6"));
 }
 
 

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{4cca0a42-456a-46d7-9a3b-5f3900f3def7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,10 +30,70 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="Arch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Arch.h">
+    <ClInclude Include="gtest\gtest.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest_pred_impl.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest_prod.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-death-test.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-message.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-param-test.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-printers.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-spi.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-test-part.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\gtest-typed-test.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-death-test-internal.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-filepath.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-internal.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-linked_ptr.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-param-util.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-param-util-generated.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-port.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-string.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-tuple.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="gtest\internal\gtest-type-util.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="ParserEndgine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +107,27 @@
     <ClCompile Include="Arch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParserEndgine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Parser.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gtest\gtest-param-test.h.pump">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="gtest\internal\gtest-param-util-generated.h.pump">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="gtest\internal\gtest-tuple.h.pump">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="gtest\internal\gtest-type-util.h.pump">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
 </Project>

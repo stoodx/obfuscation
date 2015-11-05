@@ -2,9 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "Parser.h"
+#include "ParserEndgine.h"
 #include "Arch.h"
-#include "Parser.h"
+
 
 const TCHAR* g_strArchFilename = _T("arch_obfuscate.obf");
 

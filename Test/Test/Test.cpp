@@ -48,20 +48,20 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	m1:
 
 	CSetting setting;
-	setting.add(ENCRYPT(L"mg{3"), ENCRYPT(L"xcnwg3"));
-	setting.add(ENCRYPT(L"mg{4"), ENCRYPT(L"xcnwg4"));
-	setting.add(ENCRYPT(L"mg{5"), ENCRYPT(L"xcnwg5"));
+	setting.add(ENCRYPT(L"key1"), ENCRYPT(L"value1"));
+	setting.add(ENCRYPT(L"key2"), ENCRYPT(L"value2"));
+	setting.add(ENCRYPT(L"key3"), ENCRYPT(L"value3"));
 	
 
-	std::wcout << setting.get(ENCRYPT(L"mg{3")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"mg{3")) << std::endl; // output: "value1"
-	std::wcout << setting.get(ENCRYPT(L"mg{4")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"mg{4")) << std::endl; // output: "value2"
-	std::wcout << setting.get(ENCRYPT(L"mg{5")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"mg{5")) << std::endl << std::endl; // output: "value3"
+	std::wcout << setting.get(ENCRYPT(L"key1")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key1")) << std::endl; // output: "value1"
+	std::wcout << setting.get(ENCRYPT(L"key2")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key2")) << std::endl; // output: "value2"
+	std::wcout << setting.get(ENCRYPT(L"key3")) << setting.get(ENCRYPT(L" ")) << setting.getMap(ENCRYPT(L"key3")) << std::endl << std::endl; // output: "value3"
 
 	CSetting2 setting2(&setting);
 
-	std::wcout << setting.get(ENCRYPT(L"mg{6")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"mg{6")) << std::endl; // output: "value4"
-	std::wcout << setting.get(ENCRYPT(L"mg{7")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"mg{7")) << std::endl; // output: "value5"
-	std::wcout << setting.get(ENCRYPT(L"mg{8")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"mg{8")) << std::endl; // output: "value6"
+	std::wcout << setting.get(ENCRYPT(L"key4")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key4")) << std::endl; // output: "value4"
+	std::wcout << setting.get(ENCRYPT(L"key5")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key5")) << std::endl; // output: "value5"
+	std::wcout << setting.get(ENCRYPT(L"key6")) << setting.get(ENCRYPT(L" ")) << setting2.get(ENCRYPT(L"key6")) << std::endl; // output: "value6"
 
 
 	std::system("PAUSE");
