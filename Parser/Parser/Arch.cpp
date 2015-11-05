@@ -23,7 +23,7 @@ CArch::~CArch()
 
 // CArch member functions
 
-int CArch::WriteArch(CString strPath, CPtrArray* pArr)
+int CArch::writeArch(CString strPath, CPtrArray* pArr)
 {
 	//return 1 - error
 
@@ -40,7 +40,7 @@ int CArch::WriteArch(CString strPath, CPtrArray* pArr)
 	if (!f.Open(strFullPath, CFile::modeCreate | CFile::modeWrite | 
 		CFile::typeBinary, &e))
 	{
-		FileErrorArch(&e);
+		getFileErrorArch(&e);
 		return 1;
 	}
 	CArchive ar(&f, CArchive::store);
@@ -49,7 +49,7 @@ int CArch::WriteArch(CString strPath, CPtrArray* pArr)
 	return 0;
 }
 
-int CArch::ReadArch(CString strPath, CPtrArray* pArr)
+int CArch::readArch(CString strPath, CPtrArray* pArr)
 {
 	//return 1 - error
 	ASSERT(pArr);
@@ -63,7 +63,7 @@ int CArch::ReadArch(CString strPath, CPtrArray* pArr)
 
 	if (!f.Open(strFullPath, CFile::modeRead | CFile::typeBinary, &e))
 	{
-		if (FileErrorArch(&e) == CFileException::fileNotFound)
+		if (getFileErrorArch(&e) == CFileException::fileNotFound)
 		{
 			_tprintf(_T("The project does not keep the obfuscated files.\n"));
 			return 0;
@@ -77,7 +77,7 @@ int CArch::ReadArch(CString strPath, CPtrArray* pArr)
 	return 0;
 }
 
-int CArch::FileErrorArch(CFileException *e)
+int CArch::getFileErrorArch(CFileException *e)
 {
 		switch(e->m_cause)
 		{
@@ -163,7 +163,7 @@ int CArch::FileErrorArch(CFileException *e)
 	}
 }
 
-void CArch::Serialize(CArchive &ar)
+void CArch::serialize(CArchive &ar)
 {
 	ASSERT(m_pArr);
 	

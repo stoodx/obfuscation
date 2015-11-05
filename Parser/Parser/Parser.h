@@ -21,13 +21,13 @@ struct CCodeDirectories
 	}
 };
 
-int Obfuscate(CString strRootPath);
-int Restore(CString strRootPath);
-int FindSubDirs(CPtrArray& listDirs);
-bool FindCodesFiles(CPtrArray& listDirs);
-bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
-int ParseFiles(CCodeDirectories* pDirs);
-int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated);
-int FileError(CFileException *e);
-CStringA Encoder(CStringA strText);
-bool CreateTempDir(CString strPath);
+int obfuscate(CString strRootPath);
+int restore(CString strRootPath);
+int findSubDirs(CPtrArray& listDirs);
+bool findCodesFiles(CPtrArray& listDirs);
+bool findFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
+int parseFiles(CCodeDirectories* pDirs);
+int parseFile(CString strPath, CString strFilename, bool& bTempDirCreated);
+int getFileError(CFileException *e);
+CStringA encodeText(CStringA strText);
+bool createTempDir(CString strPath);

@@ -11,11 +11,11 @@ public:
 	CArch();
 	virtual ~CArch();
 
-	int WriteArch(CString strPath, CPtrArray* pArr);
-	int ReadArch(CString strPath, CPtrArray* pArr);
+	int writeArch(CString strPath, CPtrArray* pArr);
+	int readArch(CString strPath, CPtrArray* pArr);
 private:
-	int FileErrorArch(CFileException *e);
-	void Serialize(CArchive &ar);
+	int getFileErrorArch(CFileException *e);
+	void serialize(CArchive &ar);
 	CPtrArray* m_pArr;
 };
 

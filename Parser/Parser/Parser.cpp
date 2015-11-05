@@ -59,12 +59,12 @@ err:
 				case _T('O'):
 				case _T('o'):
 					_tprintf(_T("Obfuscate operation.\n"));
-					nRetCode = Obfuscate(strCurrentPath);
+					nRetCode = obfuscate(strCurrentPath);
 					break;
 				case _T('R'):
 				case _T('r'):
 					_tprintf(_T("Restore operation.\n"));
-					nRetCode = Restore(strCurrentPath);
+					nRetCode = restore(strCurrentPath);
 					break;
 				default:
 					_tprintf(_T("Invalid parameter: %s\n\n"), argv[1]);
@@ -86,7 +86,7 @@ err:
 }
 
 
-int Obfuscate(CString strRootPath)
+int obfuscate(CString strRootPath)
 {
 	//return:
 	//0 - normal
@@ -102,15 +102,15 @@ int Obfuscate(CString strRootPath)
 	pDirs->m_strOriginalDir = strRootPath;
 	listDirs.Add(pDirs);
 	//Find all subdirs in root
-	FindSubDirs(listDirs);
+	findSubDirs(listDirs);
 	//find codes files
-	if (FindCodesFiles(listDirs))
+	if (findCodesFiles(listDirs))
 	{
 		nSizeDir = listDirs.GetSize();
 		for (int i = 0; i < nSizeDir; i++)
 		{
 			pDirs = (CCodeDirectories*)listDirs.GetAt(i);
-			int nRet = ParseFiles(pDirs);
+			int nRet = parseFiles(pDirs);
 			if (nRet == -1) //error
 			{
 				nResult = 1;
@@ -137,7 +137,7 @@ int Obfuscate(CString strRootPath)
 		if (!nResult)
 		{//archive  result
 			CArch arch;
-			nResult = arch.WriteArch(strRootPath, &listDirs);
+			nResult = arch.writeArch(strRootPath, &listDirs);
 		}
 		int nFilesNumber = 0;
 		for (int i = 0; i < nSizeDir; i++)
@@ -155,7 +155,7 @@ int Obfuscate(CString strRootPath)
 	return nResult;
 }
 
-int Restore(CString strRootPath)
+int restore(CString strRootPath)
 {
 	//return:
 	//0 - normal
@@ -168,7 +168,7 @@ int Restore(CString strRootPath)
 
 	//restore the list dirs
 	_tprintf(_T("Restore the archive of obfuscation\n"));
-	if ((nResult = arch.ReadArch(strRootPath, &listDirs)) != 1) 
+	if ((nResult = arch.readArch(strRootPath, &listDirs)) != 1) 
 	{//no error
 		if (listDirs.GetSize() == 0)
 			return 0; // no obfucation files
@@ -255,7 +255,7 @@ int Restore(CString strRootPath)
 	return nResult;
 }
 
-int FindSubDirs(CPtrArray& listDirs)
+int findSubDirs(CPtrArray& listDirs)
 {
 	//return size of dirs in root
 	ASSERT(listDirs.GetSize() > 0);
@@ -299,7 +299,7 @@ int FindSubDirs(CPtrArray& listDirs)
 }
 
 
-bool FindCodesFiles(CPtrArray& listDirs)
+bool findCodesFiles(CPtrArray& listDirs)
 {
 	//return false - error
 	int nSize = listDirs.GetSize();
@@ -308,10 +308,10 @@ bool FindCodesFiles(CPtrArray& listDirs)
 	{
 		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
 		bool result[4] = {false};
-		result[0] = FindFileByType(pDirs,  _T("*.h"));
-		result[1] = FindFileByType(pDirs,  _T("*.hpp"));
-		result[2] = FindFileByType(pDirs,  _T("*.c"));
-		result[3] = FindFileByType(pDirs,  _T("*.cpp"));
+		result[0] = findFileByType(pDirs,  _T("*.h"));
+		result[1] = findFileByType(pDirs,  _T("*.hpp"));
+		result[2] = findFileByType(pDirs,  _T("*.c"));
+		result[3] = findFileByType(pDirs,  _T("*.cpp"));
 
 		if (!result[1] && !result[0]  && !result[2]  && !result[3])
 		{
@@ -336,7 +336,7 @@ bool FindCodesFiles(CPtrArray& listDirs)
 		return true;
 }
 
-bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile)
+bool findFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 {
 	//return true - we found files
 	ASSERT(pDirs && strTypeFile.GetLength() > 0);
@@ -365,7 +365,7 @@ bool FindFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 }
 
 
-int ParseFiles(CCodeDirectories* pDirs)
+int parseFiles(CCodeDirectories* pDirs)
 {
 	//return:
 	//-1 - error
@@ -383,7 +383,7 @@ int ParseFiles(CCodeDirectories* pDirs)
 	_tprintf(_T("Parsing files in %s:\n"), pDirs->m_strOriginalDir);
 	for (int i = 0; i < nSize; i++)
 	{
-		int nRet = ParseFile(pDirs->m_strOriginalDir, pDirs->m_listFiles.GetAt(i), pDirs->m_bTempDirCreated);
+		int nRet = parseFile(pDirs->m_strOriginalDir, pDirs->m_listFiles.GetAt(i), pDirs->m_bTempDirCreated);
 		if (nRet < 0) //error
 		{
 			return -1;
@@ -406,7 +406,7 @@ int ParseFiles(CCodeDirectories* pDirs)
 	return nSize;
 }
 
-int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
+int parseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 {
 	//return:
 	//-1 - error
@@ -432,7 +432,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	strFullPathName = strPath + strFilename;
 	if (!fileOriginal.Open(strFullPathName, CFile::modeRead, &e))
 	{
-		_tprintf(_T("Cannot open the file: %s\nError=%i\n"), strFilename, FileError(&e));
+		_tprintf(_T("Cannot open the file: %s\nError=%i\n"), strFilename, getFileError(&e));
 		return -1;
 	}
 	nFileLength = (int)fileOriginal.GetLength();
@@ -495,7 +495,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 				break;
 			strForObfuscationA += c;
 		}
-		strFileObfuscatedA += Encoder(strForObfuscationA) + '\"';
+		strFileObfuscatedA += encodeText(strForObfuscationA) + '\"';
 		bObfuscation = true;
 	}
 	//add the last part of file
@@ -505,7 +505,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 		//create temp dir
 		if (!bTempDirCreated)
 		{
-			if (!CreateTempDir(strPathTempDir))
+			if (!createTempDir(strPathTempDir))
 				return -1; //did not create the temp dir
 			bTempDirCreated = true;
 			_tprintf(_T("Temp directory:\n%s\n"), strPathTempDir);
@@ -534,7 +534,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 		//modify an original file
 		if (!fileOriginal.Open(strFullPathName, CFile::modeReadWrite | CFile::shareDenyNone, &e))
 		{
-			_tprintf(_T("Cannot open the file  %s for modification.\nError=%i\n"), strFilename, FileError(&e));
+			_tprintf(_T("Cannot open the file  %s for modification.\nError=%i\n"), strFilename, getFileError(&e));
 			return -1;
 		}
 		fileOriginal.SeekToBegin(); 
@@ -555,7 +555,7 @@ int ParseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
 	return nFileLength;
 }
 
-CStringA Encoder(CStringA strText)
+CStringA encodeText(CStringA strText)
 {
 	//plus 2 to each char
 	int nLen = strText.GetLength();
@@ -570,7 +570,7 @@ CStringA Encoder(CStringA strText)
 	return str;
 }
 
-int FileError(CFileException *e)
+int getFileError(CFileException *e)
 {
 		switch(e->m_cause)
 		{
@@ -639,7 +639,7 @@ int FileError(CFileException *e)
 	}
 }
 
-bool CreateTempDir(CString strPath)
+bool createTempDir(CString strPath)
 {
 	//return false - error
 	
