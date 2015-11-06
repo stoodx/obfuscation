@@ -40,5 +40,14 @@ private:
 	bool createTempDir(CString strPath);
 
 	CString m_strCurrentPath;
+public:
+	const TCHAR* getCurrentPath()
+	{
+		return m_strCurrentPath.GetBuffer();
+	}
+	void setCurrentPath(const std::wstring& strCurrentPath)
+	{
+		m_strCurrentPath = strCurrentPath.c_str();
+	}
 };
 

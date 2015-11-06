@@ -16,16 +16,6 @@ using namespace std;
 ParserEndgine::ParserEndgine(void)
 	: m_strCurrentPath(_T(""))
 {
-	HMODULE hModule = ::GetModuleHandle(NULL);
-	if (hModule != NULL)
-	{
-		// initialize MFC and print and error on failure
-		if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0))
-		{
-			return;
-		}
-	}
-
 	TCHAR strCurrentPath[MAX_PATH * sizeof(TCHAR)] = {0};
 	GetCurrentDirectory(MAX_PATH * sizeof(TCHAR), strCurrentPath);
 	m_strCurrentPath =  strCurrentPath;

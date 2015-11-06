@@ -1,6 +1,8 @@
 // Parser.cpp : Defines the entry point for the console application.
 //
 
+#ifndef _GOOGLE_TEST
+
 #include "stdafx.h"
 #include "ParserEndgine.h"
 
@@ -15,6 +17,17 @@
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
 	int nRetCode = 0;
+
+	HMODULE hModule = ::GetModuleHandle(NULL);
+	if (hModule != NULL)
+	{
+		// initialize MFC and print and error on failure
+		if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0))
+		{
+			_tprintf(_T("Not init MFC.\n"));
+			return 1;
+		}
+	}
 
 	_tprintf(_T("\n***** Obfuscation *****\n"));
 	if (argc != 2)
@@ -51,4 +64,30 @@ err:
 	_tprintf(_T("\nObfuscated finish: %s\n\n"), nRetCode == 1 ? L"Error" : L"Normal");
 	return nRetCode;
 }
+
+#else
+
+#include "stdafx.h"
+#include "gtest.h"
+
+int main(int argc, char* argv[])
+{
+	HMODULE hModule = ::GetModuleHandle(NULL);
+	if (hModule != NULL)
+	{
+		// initialize MFC and print and error on failure
+		if (!AfxWinInit(hModule, NULL, ::GetCommandLine(), 0))
+		{
+			_tprintf(_T("Not init MFC.\n"));
+			return 1;
+		}
+	}
+
+	::testing::InitGoogleTest(&argc, argv);
+	int nRes = RUN_ALL_TESTS();
+	system("pause");
+	return nRes;
+}
+#endif // _GOOGLE_TEST
+
 
