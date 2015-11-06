@@ -15,7 +15,7 @@ public:
 	int readArch(CString strPath, CPtrArray* pArr);
 private:
 	int getFileErrorArch(CFileException *e);
-	void serialize(CArchive &ar);
+	void Serialize(CArchive &ar);
 	CPtrArray* m_pArr;
 };
 

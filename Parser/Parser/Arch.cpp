@@ -163,7 +163,7 @@ int CArch::getFileErrorArch(CFileException *e)
 	}
 }
 
-void CArch::serialize(CArchive &ar)
+void CArch::Serialize(CArchive &ar)
 {
 	ASSERT(m_pArr);
 	
