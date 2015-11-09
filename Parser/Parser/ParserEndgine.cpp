@@ -207,7 +207,8 @@ int ParserEndgine::restore()
 int ParserEndgine::findSubDirs(CPtrArray& listDirs)
 {
 	//return size of dirs in root
-	ASSERT(listDirs.GetSize() > 0);
+	if (listDirs.GetSize() == 0)
+		return 0;
 
 	CString strCurrentDir;
 	CStringArray directoryArray;
@@ -252,7 +253,9 @@ bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
 {
 	//return false - error
 	int nSize = listDirs.GetSize();
-	ASSERT(nSize > 0);
+	if (nSize == 0)
+		return false;
+
 	for (int i = 0; i < nSize; i++)
 	{
 		CCodeDirectories* pDirs = (CCodeDirectories*) listDirs.GetAt(i);
@@ -269,7 +272,9 @@ bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
 			nSize = listDirs.GetSize();
 			if (nSize == 0)
 			{
-				_tprintf(_T("Obfuscate error: No codes files.\n"));
+#ifndef _GOOGLE_TEST
+				_tprintf(_T("Obfuscate: No codes files.\n"));
+#endif
 				return false;
 			}
 			i--;
@@ -278,7 +283,9 @@ bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
 	nSize = listDirs.GetSize();
 	if (nSize == 0)
 	{
-		_tprintf(_T("Obfuscate error: No codes files.\n"));
+#ifndef _GOOGLE_TEST
+		_tprintf(_T("Obfuscate: No codes files.\n"));
+#endif
 		return false;
 	}
 	else
@@ -288,13 +295,15 @@ bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
 bool ParserEndgine::findFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 {
 	//return true - we found files
-	ASSERT(pDirs && strTypeFile.GetLength() > 0);
+	if(!pDirs || strTypeFile.GetLength() == 0)
+		return false;
 	CString strCurrentDir;
 	CStringArray directoryArray;
 	CFileFind finder;
 
 	strCurrentDir = pDirs->m_strOriginalDir;
-	SetCurrentDirectory(strCurrentDir);
+	if(!SetCurrentDirectory(strCurrentDir))
+		return false;
 
 	BOOL bWorking = finder.FindFile(strTypeFile);
 	while (bWorking)

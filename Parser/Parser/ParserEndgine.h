@@ -29,7 +29,11 @@ public:
 
 	int obfuscate(void);
 	int restore(void);
-private:
+#ifdef _GOOGLE_TEST
+public:  
+#else
+private:  
+#endif
 	int findSubDirs(CPtrArray& listDirs);
 	bool findCodesFiles(CPtrArray& listDirs);
 	bool findFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
@@ -39,6 +43,7 @@ private:
 	CStringA encodeText(CStringA strText);
 	bool createTempDir(CString strPath);
 
+private: 
 	CString m_strCurrentPath;
 public:
 	const TCHAR* getCurrentPath()
