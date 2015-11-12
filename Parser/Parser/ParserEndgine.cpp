@@ -364,7 +364,7 @@ int ParserEndgine::parseFiles(CCodeDirectories* pDirs)
 	return nSize;
 }
 
-int ParserEndgine::parseFile(CString strPath, CString strFilename, bool& bTempDirCreated)
+int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename, bool& bTempDirCreated)
 {
 	//return:
 	//-1 - error
@@ -597,7 +597,7 @@ int ParserEndgine::getFileError(CFileException *e)
 	}
 }
 
-bool ParserEndgine::createTempDir(CString strPath)
+bool ParserEndgine::createTempDir(const CString& strPath)
 {
 	//return false - error
 	

@@ -4,6 +4,8 @@
 #include "gtest.h"
 #include "ParserEndgine.h"
 
+std::wstring g_strCurrentDir;
+
 class EngineTestParser :
 	public ::testing::Test
 {
@@ -12,6 +14,8 @@ protected:
 	std::wstring m_strRootPath;
 	void SetUp()
 	{
+		if (g_strCurrentDir.empty())
+			g_strCurrentDir = m_parser.getCurrentPath();
 		m_strRootPath = m_parser.getCurrentPath();
 		if (m_strRootPath.empty())
 			return;
@@ -28,7 +32,7 @@ TEST_F(EngineTestParser, BasicTest)
 	ASSERT_FALSE(strPath.empty());
 }
 
-TEST_F(EngineTestParser,  findSubDirs_NoParentDirectory)
+TEST_F(EngineTestParser,  findSubDirs_noParentDirectory)
 {
 	CPtrArray arr;
 	int nRes = m_parser.findSubDirs(arr);
@@ -60,31 +64,32 @@ TEST_F(EngineTestParser,  findSubDirs_findAllSubDirectories)
 		}
 		arr.RemoveAll();
 	}
+	SetCurrentDirectory(g_strCurrentDir.c_str());
 	ASSERT_NE(0, nRes); 
 }
 
-TEST_F(EngineTestParser,  findFileByType_InvalidParameters1)
+TEST_F(EngineTestParser,  findFileByType_setInvalidParameters1)
 {
 	bool bRes = m_parser.findFileByType(NULL, _T("*.h"));
 	ASSERT_FALSE(bRes);
 }
 
-TEST_F(EngineTestParser,  findFileByType_InvalidParameters2)
+TEST_F(EngineTestParser,  findFileByType_setInvalidParameters2)
 {
 	CCodeDirectories dir;
 	bool bRes = m_parser.findFileByType(&dir, _T(""));
 	ASSERT_FALSE(bRes);
 }
 
-TEST_F(EngineTestParser,  findFileByType_NoFilesByType)
+TEST_F(EngineTestParser,  findFileByType_noFilesByType)
 {
 	CCodeDirectories dir;
-	dir.m_strOriginalDir = m_parser.getCurrentPath();
+	dir.m_strOriginalDir = m_strRootPath.c_str();
 	bool bRes = m_parser.findFileByType(&dir, _T("*.h"));
 	ASSERT_FALSE(bRes);
 }
 
-TEST_F(EngineTestParser,  findFileByType_IncorrectCurrentDirectory)
+TEST_F(EngineTestParser,  findFileByType_setIncorrectCurrentDirectory)
 {
 	CCodeDirectories dir;
 	dir.m_strOriginalDir = _T("failedDir");
@@ -92,16 +97,17 @@ TEST_F(EngineTestParser,  findFileByType_IncorrectCurrentDirectory)
 	ASSERT_FALSE(bRes);
 }
 
-TEST_F(EngineTestParser,  findFileByType_FilesFound)
+TEST_F(EngineTestParser,  findFileByType_checkFilesFound)
 {
 	CCodeDirectories dir;
 	dir.m_strOriginalDir = m_strRootPath.c_str();
 	dir.m_strOriginalDir += _T("Test\\Test");
 	bool bRes = m_parser.findFileByType(&dir, _T("*.h"));
+	SetCurrentDirectory(g_strCurrentDir.c_str());
 	ASSERT_TRUE(bRes);
 }
 
-TEST_F(EngineTestParser,  findCodesFiles_NoParentDirectory)
+TEST_F(EngineTestParser,  findCodesFiles_noParentDirectory)
 {
 	CPtrArray arr;
 	int nRes = m_parser.findCodesFiles(arr);
@@ -117,7 +123,7 @@ TEST_F(EngineTestParser,  findCodesFiles_NoParentDirectory)
 	ASSERT_EQ(0, nRes); 
 }
 
-TEST_F(EngineTestParser,  findCodesFiles_NoCodesFiles)
+TEST_F(EngineTestParser,  findCodesFiles_noCodesFiles)
 {
 	CPtrArray arr;
 	CCodeDirectories* pDirs =  new CCodeDirectories;
@@ -136,8 +142,34 @@ TEST_F(EngineTestParser,  findCodesFiles_NoCodesFiles)
 		}
 		arr.RemoveAll();
 	}
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_FALSE(bRes); 
+}
+
+TEST_F(EngineTestParser,  findCodesFiles_haveCodesFiles)
+{
+	CPtrArray arr;
+	CCodeDirectories* pDirs =  new CCodeDirectories;
+	pDirs->m_strOriginalDir = m_strRootPath.c_str();
+	pDirs->m_strOriginalDir += _T("Test\\Test\\");
+	arr.Add(pDirs);
+	int nRes = m_parser.findSubDirs(arr);
+	EXPECT_NE(0, nRes);
+	bool bRes = m_parser.findCodesFiles(arr);
+	nRes = arr.GetSize();
+	if (nRes != 0)
+	{
+		for (int i = 0; i < nRes; i++)
+		{
+			CCodeDirectories* pDirs = (CCodeDirectories*)arr.GetAt(i);
+			delete pDirs;
+		}
+		arr.RemoveAll();
+	}
+	SetCurrentDirectory(g_strCurrentDir.c_str());
 	ASSERT_TRUE(bRes); 
 }
+
 
 TEST_F(EngineTestParser, getFileError_genericException)
 {
@@ -175,9 +207,30 @@ TEST_F(EngineTestParser, getFileError_genericException)
 
 TEST_F(EngineTestParser,  createTempDir)
 {
+	CString strTempDir(m_strRootPath.c_str());
+	strTempDir += _T("TempDir");
+	bool bRes = m_parser.createTempDir(strTempDir);
+	EXPECT_TRUE(bRes);
+	SHFILEINFO shFileInfo;
+	if (SHGetFileInfo(strTempDir, 0, &shFileInfo, sizeof(SHFILEINFO), SHGFI_TYPENAME) != 0)
+	{
+		bRes = true;
+		RemoveDirectory(strTempDir);
+	}
+	else
+	{
+		bRes = false;
+	}
+	ASSERT_TRUE(bRes);
 }
 
-TEST_F(EngineTestParser,  obfuscate_NoPathDirectory)
+TEST_F(EngineTestParser,  encodeText_encode)
+{
+	std::string strEncode(m_parser.encodeText("12345678"));
+	ASSERT_EQ(0, strEncode.compare("3456789:"));
+}
+
+TEST_F(EngineTestParser,  obfuscate_noPathDirectory)
 {
 	std::wstring strPath(_T(""));
 	m_parser.setCurrentPath(strPath);
@@ -185,7 +238,7 @@ TEST_F(EngineTestParser,  obfuscate_NoPathDirectory)
 	ASSERT_EQ(1, nRes);
 }
 
-TEST_F(EngineTestParser,  restore_NoPathDirectory)
+TEST_F(EngineTestParser,  restore_noPathDirectory)
 {
 	std::wstring strPath(_T(""));
 	m_parser.setCurrentPath(strPath);

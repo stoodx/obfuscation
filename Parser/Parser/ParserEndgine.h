@@ -38,10 +38,10 @@ private:
 	bool findCodesFiles(CPtrArray& listDirs);
 	bool findFileByType(CCodeDirectories* pDirs, CString strTypeFile); 
 	int parseFiles(CCodeDirectories* pDirs);
-	int parseFile(CString strPath, CString strFilename, bool& bTempDirCreated);
+	int parseFile(const CString& strPath, const CString& strFilename, bool& bTempDirCreated);
 	int getFileError(CFileException *e);
 	CStringA encodeText(CStringA strText);
-	bool createTempDir(CString strPath);
+	bool createTempDir(const CString& strPath);
 
 private: 
 	CString m_strCurrentPath;
