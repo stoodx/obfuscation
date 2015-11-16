@@ -390,14 +390,18 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 	strFullPathName = strPath + strFilename;
 	if (!fileOriginal.Open(strFullPathName, CFile::modeRead, &e))
 	{
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("Cannot open the file: %s\nError=%i\n"), strFilename, getFileError(&e));
+#endif
 		return -1;
 	}
 	nFileLength = (int)fileOriginal.GetLength();
 	if (nFileLength == 0)
 	{
 		fileOriginal.Close();
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("The file: %s has the null length.\n"), strFilename);
+#endif
 		return 0;
 	}
 	pBufFileOriginalA = new char[nFileLength + 1];
@@ -414,7 +418,9 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 	index = strFileOriginalA.Find("#define __NO__OBFUSCATION");
 	if (index != -1)
 	{//we must skip that file
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("%s -> passed\n"), strFilename);
+#endif
 		return 0;
 	}
 
@@ -466,7 +472,9 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 			if (!createTempDir(strPathTempDir))
 				return -1; //did not create the temp dir
 			bTempDirCreated = true;
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Temp directory:\n%s\n"), strPathTempDir);
+#endif
 		}
 		//copy an original file to the temp dir
 		CString strPathTempDirFile = strPathTempDir + strFilename;
@@ -485,14 +493,18 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 			strErr.Format(_T("Obfuscate error: Cannot copy a file:\n%s\nto\n%s\nerror: %s\n"), 
 				strFullPathName, strPathTempDirFile, (TCHAR*)cstr);
 			LocalFree(cstr);
+#ifndef _GOOGLE_TEST
 			_tprintf(strErr);
+#endif
 			return -1;
 		}
 		_tprintf(_T("%s was copied to Temp directory\n"), strFilename);
 		//modify an original file
 		if (!fileOriginal.Open(strFullPathName, CFile::modeReadWrite | CFile::shareDenyNone, &e))
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Cannot open the file  %s for modification.\nError=%i\n"), strFilename, getFileError(&e));
+#endif
 			return -1;
 		}
 		fileOriginal.SeekToBegin(); 
@@ -501,7 +513,7 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 		fileOriginal.Flush();
 		fileOriginal.Close();
 	}
-
+#ifndef _GOOGLE_TEST
 	if ( bObfuscation)
 	{
 		_tprintf(_T("%s -> obfuscated\n"), strFilename);
@@ -510,6 +522,7 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 	{
 		_tprintf(_T("%s -> passed\n"), strFilename);
 	}
+#endif
 	return nFileLength;
 }
 
