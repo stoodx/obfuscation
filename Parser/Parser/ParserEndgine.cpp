@@ -399,7 +399,7 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 	if (nFileLength == 0)
 	{
 		fileOriginal.Close();
-#ifndef _GOOGLE_TEST
+#ifndef _GOOGLE_TEST 
 		_tprintf(_T("The file: %s has the null length.\n"), strFilename);
 #endif
 		return 0;

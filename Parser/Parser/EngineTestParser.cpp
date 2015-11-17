@@ -237,7 +237,7 @@ TEST_F(EngineTestParser,  parseFile_noPath)
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 	SetCurrentDirectory(g_strCurrentDir.c_str());
-	ASSERT_EQ(-1, -1);
+	ASSERT_EQ(-1, nRes);
 }
 
 TEST_F(EngineTestParser,  parseFile_noFileName)
@@ -247,7 +247,7 @@ TEST_F(EngineTestParser,  parseFile_noFileName)
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 	SetCurrentDirectory(g_strCurrentDir.c_str());
-	ASSERT_EQ(-1, -1);
+	ASSERT_EQ(-1, nRes);
 }
 
 TEST_F(EngineTestParser,  parseFile_cannotOpenFile)
@@ -258,6 +258,7 @@ TEST_F(EngineTestParser,  parseFile_cannotOpenFile)
 	strTestDir += _T("TestDir");
 	strCommand.Format(_T("/c mkdir %s"), strTestDir);
 	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
 
 	CString strPath(strTestDir);
 	CString strFilename("ParserEndgine.cpp");
@@ -268,16 +269,87 @@ TEST_F(EngineTestParser,  parseFile_cannotOpenFile)
 	strCommand = _T("");
 	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
 	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
 
 	SetCurrentDirectory(g_strCurrentDir.c_str());
-	ASSERT_EQ(-1, -1);
+	ASSERT_EQ(-1, nRes);
 }
 
 TEST_F(EngineTestParser,  parseFile_haveNullFileLength)
 {
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
+
+	//create a nul file
+	CString strFilePath(strTestDir);
+	strFilePath += _T("ParserEndgine.cpp");
+	HANDLE hFile = CreateFile(strFilePath,  GENERIC_WRITE, 0,  
+		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile ==  INVALID_HANDLE_VALUE)
+	{
+		//del work dir
+		strCommand = _T("");
+		strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+		ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+		ASSERT_TRUE(false);
+	}
+	CloseHandle(hFile);
+
+	CString strPath(strTestDir);
+	CString strFilename("ParserEndgine.cpp");
+	bool bCreateTempDir = false;
+	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
+
 	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_EQ(0, nRes);
 }
 
+TEST_F(EngineTestParser,  parseFile_define__NO__OBFUSCATION)
+{
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
+
+	//copy file with NO__OBFUSCATION
+	CString strSourceFile(m_strRootPath.c_str());
+	strSourceFile += _T("Parser\\Parser\\ParserEndgine.cpp");
+	CString strDestFile(strTestDir);
+	strDestFile += _T("ParserEndgine.cpp");
+	CopyFile(strSourceFile, strDestFile, TRUE);
+
+	CString strPath(strTestDir);
+	CString strFilename("ParserEndgine.cpp");
+	bool bCreateTempDir = false;
+	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(1000);
+
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_EQ(0, nRes);
+}
+
+TEST_F(EngineTestParser,  parseFile_parseWithCreateTempDir)
+{
+}
 
 
 TEST_F(EngineTestParser,  obfuscate_noPathDirectory)
