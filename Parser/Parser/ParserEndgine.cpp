@@ -330,15 +330,20 @@ int ParserEndgine::parseFiles(CCodeDirectories* pDirs)
 	//0 - no files
 	//>0 - number of files, the files were parsed
 
-	ASSERT(pDirs);
+	if (!pDirs)
+		return -1;
 
 	int nSize = pDirs->m_listFiles.GetSize();
 	if (!nSize)
 	{
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("No files for obfuscation in %s\n"), pDirs->m_strOriginalDir);
+#endif
 		return 0;
 	}
+#ifndef _GOOGLE_TEST
 	_tprintf(_T("Parsing files in %s:\n"), pDirs->m_strOriginalDir);
+#endif
 	for (int i = 0; i < nSize; i++)
 	{
 		int nRet = parseFile(pDirs->m_strOriginalDir, pDirs->m_listFiles.GetAt(i), pDirs->m_bTempDirCreated);
@@ -358,7 +363,9 @@ int ParserEndgine::parseFiles(CCodeDirectories* pDirs)
 	nSize = pDirs->m_listFiles.GetSize();
 	if (!nSize)
 	{
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("No files for obfuscation in %s\n"), pDirs->m_strOriginalDir);
+#endif
 		return 0;
 	}	
 	return nSize;
@@ -498,7 +505,9 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 #endif
 			return -1;
 		}
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("%s was copied to Temp directory\n"), strFilename);
+#endif
 		//modify an original file
 		if (!fileOriginal.Open(strFullPathName, CFile::modeReadWrite | CFile::shareDenyNone, &e))
 		{
