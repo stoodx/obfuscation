@@ -95,7 +95,9 @@ int ParserEndgine::obfuscate()
 		listDirs.RemoveAll();
 		if (!nResult) //no error
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Obfuscate operation - completed!\nObfuscated files number: %i\n"), nFilesNumber);
+#endif
 		}
 	}
 	return nResult;
@@ -116,7 +118,9 @@ int ParserEndgine::restore()
 	CString strErr;
 
 	//restore the list dirs
+#ifndef _GOOGLE_TEST
 	_tprintf(_T("Restore the archive of obfuscation\n"));
+#endif
 	if ((nResult = arch.readArch(m_strCurrentPath, &listDirs)) != 1) 
 	{//no error
 		if (listDirs.GetSize() == 0)
@@ -125,7 +129,9 @@ int ParserEndgine::restore()
 		CString strArchPath = m_strCurrentPath + g_strArchFilename;
 		if (DeleteFile(strArchPath))
 		{//no err
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file %s was deleted\n"), g_strArchFilename);
+#endif
 		}
 		else
 		{//err
@@ -142,15 +148,21 @@ int ParserEndgine::restore()
 			strErr.Format(_T("Obfuscate error: Cannot delete the arch file:\n%s\nerror: %s\nmake it by hand\n"), 
 				strArchPath, (TCHAR*)cstr);
 			LocalFree(cstr);
+#ifndef _GOOGLE_TEST
 			_tprintf(strErr);
+#endif
 		}
 		//restore the original files
+#ifndef _GOOGLE_TEST
 		_tprintf(_T("Restore the original files\n"));
+#endif
 		while (listDirs.GetSize() != 0)
 		{
 			CCodeDirectories* pDirs = (CCodeDirectories*)listDirs.GetAt(0);
 			CString strTemDir = pDirs->m_strOriginalDir + g_strNameTempDir;
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Original direrctory: %s\n"), pDirs->m_strOriginalDir);
+#endif
 			while(pDirs->m_listFiles.GetSize() != 0)
 			{
 				CString strFilename = pDirs->m_listFiles.GetAt(0);
@@ -158,7 +170,9 @@ int ParserEndgine::restore()
 				CString strFullOriginalFilename = pDirs->m_strOriginalDir + strFilename;
 				if (CopyFile(strFullTempDirFilename, strFullOriginalFilename, FALSE))
 				{//no err
+#ifndef _GOOGLE_TEST
 					_tprintf(_T("%s -> restored.\n"), strFilename); 
+#endif
 				}
 				else
 				{//err
@@ -175,7 +189,9 @@ int ParserEndgine::restore()
 					strErr.Format(_T("Obfuscate error: Cannot copy the file:\nto %s\nerror: %s\nmake it by hand\n"), 
 						strFullTempDirFilename,  strFullOriginalFilename, (TCHAR*)cstr);
 					LocalFree(cstr);
+#ifndef _GOOGLE_TEST
 					_tprintf(strErr);
+#endif
 					nResult = 1;
 				}
 				pDirs->m_listFiles.RemoveAt(0);
@@ -191,6 +207,7 @@ int ParserEndgine::restore()
 				RemoveDirectory(strTemDir);
 			}
 		}
+#ifndef _GOOGLE_TEST
 		if (nResult == 0)
 		{
 			_tprintf(_T("Resore operation - completed!\n"));
@@ -199,6 +216,7 @@ int ParserEndgine::restore()
 		{
 			_tprintf(_T("Resore operation is not completed!\nFinish it by hand\n"));
 		}
+#endif
 	}
 
 	return nResult;

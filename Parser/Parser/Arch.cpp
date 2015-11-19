@@ -45,7 +45,9 @@ int CArch::writeArch(CString strPath, CPtrArray* pArr)
 	}
 	CArchive ar(&f, CArchive::store);
 	Serialize(ar);
+#ifndef _GOOGLE_TEST
 	_tprintf(_T("Arch file was created: %s\n"), strFullPath);
+#endif
 	return 0;
 }
 
@@ -65,7 +67,9 @@ int CArch::readArch(CString strPath, CPtrArray* pArr)
 	{
 		if (getFileErrorArch(&e) == CFileException::fileNotFound)
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("The project does not keep the obfuscated files.\n"));
+#endif
 			return 0;
 		}
 		else
@@ -87,77 +91,107 @@ int CArch::getFileErrorArch(CFileException *e)
 		}
 		case CFileException::genericException : 
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: genericException\n"));
+#endif
 			return CFileException::genericException;
 		}
 		case CFileException::fileNotFound:     
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("File %s is not found\n"), g_strArchFilename);
+#endif
 			return CFileException::fileNotFound;
 		}
 		case CFileException::badPath:       
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: badPath;\n"));
+#endif
 			return CFileException::badPath;
 		}
 		case CFileException::tooManyOpenFiles:           
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: tooManyOpenFiles\n"));
+#endif
 			return CFileException::tooManyOpenFiles;
 		}
 		case CFileException::accessDenied:              
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: accessDenied\n"));
+#endif
 			return CFileException::accessDenied;
 		}
 		case CFileException::invalidFile:                 
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: invalidFile\n"));
+#endif
 			return CFileException::invalidFile;
 		}
 		case CFileException::removeCurrentDir:                  
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: removeCurrentDir\n"));
+#endif
 			return CFileException::removeCurrentDir;
 		}
 		case CFileException::directoryFull:                    
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: directoryFull\n"));
+#endif
 			return CFileException::directoryFull;
 		}
 		case CFileException::badSeek:                       
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: adSeek\n"));
+#endif
 			return CFileException::badSeek;
 		}
 		case CFileException::hardIO:                          
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: hardIO\n"));
+#endif
 			return CFileException::hardIO;
 		}
 		case CFileException::sharingViolation:                             
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: sharingViolation\n"));
+#endif
 			return CFileException::sharingViolation;
 		}
 		case CFileException::lockViolation:                                
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: lockViolation\n"));
+#endif
 			return CFileException::lockViolation;
 		}
 		case CFileException::diskFull:                                   
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: diskFull\n"));
+#endif
 			return CFileException::diskFull;
 		}
 		case CFileException::endOfFile:                                      
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: endOfFile\n"));
+#endif
 			return CFileException::endOfFile;
 		}
 		default:
 		{
+#ifndef _GOOGLE_TEST
 			_tprintf(_T("Arch file error: unknown\n"));
+#endif
 			return -1;
 		}
 	}

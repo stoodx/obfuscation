@@ -582,8 +582,80 @@ TEST_F(EngineTestParser,  obfuscate_noPathDirectory)
 
 TEST_F(EngineTestParser,  obfuscate_noFilesForObfuscation)
 {
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	//copy file
+	CString strSourceFile(m_strRootPath.c_str());
+	strSourceFile += _T("Test\\Test\\Test.h");
+	CString strDestFile(strTestDir);
+	strDestFile += _T("Test.h");
+	CopyFile(strSourceFile, strDestFile, TRUE);
+
+	CString strFilename(_T("Test.h"));
+	std::wstring strPath(strTestDir.GetBuffer());
+	m_parser.setCurrentPath(strPath);
+	int nRes = m_parser.obfuscate();
+
+	//check
+	CString strPathTempDirFile = strTestDir + g_strNameTempDir;
+	strPathTempDirFile += _T("Test.h");
+	bool bRes = isFileExist(strPathTempDirFile);
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_TRUE(!nRes && !bRes);
 }
 
+TEST_F(EngineTestParser,  obfuscate_haveFilesForObfuscation)
+{
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	//copy file
+	CString strSourceFile(m_strRootPath.c_str());
+	strSourceFile += _T("Test\\Test\\Test.cpp");
+	CString strDestFile(strTestDir);
+	strDestFile += _T("Test.cpp");
+	CopyFile(strSourceFile, strDestFile, TRUE);
+
+	CString strFilename(_T("Test.cpp"));
+	std::wstring strPath(strTestDir.GetBuffer());
+	m_parser.setCurrentPath(strPath);
+	int nRes = m_parser.obfuscate();
+
+	//check
+	CString strPathTempDirFile = strTestDir + g_strNameTempDir;
+	strPathTempDirFile += _T("Test.cpp");
+	bool bRes1 = isFileExist(strPathTempDirFile);
+	CString strPathArchFile = strTestDir;
+	strPathArchFile += _T("arch_obfuscate.obf");
+	bool bRes2 = isFileExist(strPathArchFile);
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_TRUE(!nRes && bRes1 && bRes2);
+}
 
 TEST_F(EngineTestParser,  restore_noPathDirectory)
 {
@@ -592,5 +664,100 @@ TEST_F(EngineTestParser,  restore_noPathDirectory)
 	int nRes = m_parser.restore(); 
 	ASSERT_EQ(1, nRes);
 }
+
+TEST_F(EngineTestParser,  restore_invalidPathDirectory)
+{
+	std::wstring strPath(_T("blabla"));
+	m_parser.setCurrentPath(strPath);
+	int nRes = m_parser.restore(); 
+	ASSERT_EQ(0, nRes);
+}
+
+TEST_F(EngineTestParser,  restore_noArchFile)
+{
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	//copy file
+	CString strSourceFile(m_strRootPath.c_str());
+	strSourceFile += _T("Test\\Test\\Test.cpp");
+	CString strDestFile(strTestDir);
+	strDestFile += _T("Test.cpp");
+	CopyFile(strSourceFile, strDestFile, TRUE);
+
+	CString strFilename(_T("Test.cpp"));
+	std::wstring strPath(strTestDir.GetBuffer());
+	m_parser.setCurrentPath(strPath);
+	int nRes = m_parser.restore();
+
+	CString strPathArchFile = strTestDir;
+	strPathArchFile += _T("arch_obfuscate.obf");
+	bool bRes = isFileExist(strPathArchFile);
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_TRUE(!nRes &&  !bRes);
+}
+
+TEST_F(EngineTestParser,  restore_fullOperation)
+{
+	//create work dir
+	CString strCommand; 
+	CString strTestDir(m_strRootPath.c_str());
+	strTestDir += _T("TestDir\\");
+	strCommand.Format(_T("/c mkdir %s"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	//copy file
+	CString strSourceFile(m_strRootPath.c_str());
+	strSourceFile += _T("Test\\Test\\Test.cpp");
+	CString strDestFile(strTestDir);
+	strDestFile += _T("Test.cpp");
+	CopyFile(strSourceFile, strDestFile, TRUE);
+
+	//obfuscation
+	CString strFilename(_T("Test.cpp"));
+	std::wstring strPath(strTestDir.GetBuffer());
+	m_parser.setCurrentPath(strPath);
+	int nRes = m_parser.obfuscate();
+
+	//check
+	CString strPathTempDirFile = strTestDir + g_strNameTempDir;
+	strPathTempDirFile += _T("Test.cpp");
+	bool bRes1 = isFileExist(strPathTempDirFile);
+	CString strPathArchFile = strTestDir;
+	strPathArchFile += _T("arch_obfuscate.obf");
+	bool bRes2 = isFileExist(strPathArchFile);
+
+	bool bRes3 = false;
+	if (!nRes && bRes1 && bRes2)
+	{
+		SetCurrentDirectory(g_strCurrentDir.c_str());
+		nRes = m_parser.restore();
+		bRes2 = isFileExist(strPathArchFile);
+		bRes3 = !bRes2 && !nRes;
+	}
+
+	//del work dir
+	strCommand = _T("");
+	strCommand.Format(_T("/c rmdir %s /S /Q"), strTestDir);
+	ShellExecute(NULL, NULL,  _T("cmd.exe"),  strCommand, NULL, SW_HIDE);
+	Sleep(TEST_DELAY);
+
+	SetCurrentDirectory(g_strCurrentDir.c_str());
+	ASSERT_TRUE(bRes3);
+}
+
 
 #endif //_GOOGLE_TEST
