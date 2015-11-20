@@ -170,10 +170,11 @@ void CDemoAESDlg::OnBnClickedOk()
 	m_strEncode = L"";
 	try
 	{
-		pAES = new CAES();
-		CStringA strEncode = pAES->EncryptString(m_strText.GetBuffer()).c_str();
-		m_strEncode = strEncode;
-		m_strDecode = pAES->DecryptString(strEncode.GetBuffer()).c_str();
+		string strText = CStringA(m_strText);
+		strText =  CAES::encryptString(strText);
+		m_strEncode = CString(strText.c_str());
+		string strText2 = CAES::decryptString(strText);
+		m_strDecode = CString(strText2.c_str());
 	}
 	catch(exception& ex)
 	{

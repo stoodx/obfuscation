@@ -41,6 +41,30 @@ Return values:
 ///////////////////////////////////////////
 2. Encoder/Decoder
 
+Use of AES 256
+
+Demo project is DemoAES with the DemoAES.exe in Release.
+
+//Encrypt a string
+//Input: a plain text in strIn
+/Return: an encrypted string by AES or empty string and throw by error  
+static const string encryptString(const string& strIn);
+
+//Decrypt a string
+//Input: a decrypted text by AES in strIn
+//Return: a plain text or empty string and throw by error  
+static const string decryptString(const string& strIn);
+
+Usage
+
+string strText ("blabla");
+strText =  CAES::encryptString(strText);
+string strText2 = CAES::decryptString(strText);
+
+
+
+Old coder: 
+
 - Encoder (obfuscater)
 
 CStringA Encoder(CStringA strText) in Parser project. It adds 2 to each character of string.
@@ -49,6 +73,7 @@ CStringA Encoder(CStringA strText) in Parser project. It adds 2 to each characte
 
 wchar_t* CSetting::get( wchar_t* strKey) in Test project. It deducts 2 from each character of string.
 
+	
 
 ///////////////////////////////////////////
 3. Usage of obfuscation in MS VC++ project

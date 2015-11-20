@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-Class CAES for AES 128, 196 and 256 encoding/decoding strings in Unicode(UTF-16)
+Class CAES for AES 256 encoding/decoding strings in Unicode(UTF-16)
 Environment: MS Windows x86/x64  
 Use library: STL C++11
 
@@ -14,43 +14,28 @@ by http://www.codeproject.com/Articles/1380/A-C-Implementation-of-the-Rijndael-E
 
 using namespace std;
 
-enum AESkey
-{
-	//AES_128 = 0,
-	//AES_192,
-	AES_256
-};
-
 
 class CAES
 {
-public:
-	//Constructor with default parameters
 	CAES();
 
+public:
 	~CAES(void);
 
-//Encrypt a string
-//Input: a plain text in strIn
-//Return: an encrypted string by AES or empty string and throw by error  
-	string EncryptString(wstring strIn); 
-
-//Decrypt a string
-//Input: a decrypted text by AES in strIn
-//Return: a plain text or empty string and throw by error  
-	wstring DecryptString(string strIn); 
-
-private:
-	enum { MAX_BLOCK_SIZE=32, MAX_ROUNDS=14, MAX_KC=8, MAX_BC=8 };
-
-	//Encrypt a string by 16
+	//Encrypt a string
 	//Input: a plain text in strIn
 	//Return: an encrypted string by AES or empty string and throw by error  
-	//string EncryptString16(wstring strIn);
-	//Decrypt a string by16
+	static const string encryptString(const string& strIn);
+
+	//Decrypt a string
 	//Input: a decrypted text by AES in strIn
 	//Return: a plain text or empty string and throw by error  
-	//wstring DecryptString16(string strIn); 
+	static const string decryptString(const string& strIn); 
+private:
+	const string encryptInternalString(const string& strIn); 
+	const string decryptInternalString(const string& strIn); 
+
+	enum { MAX_BLOCK_SIZE=32, MAX_ROUNDS=14, MAX_KC=8, MAX_BC=8 };
 
 	//Key Initialization Flag
 	bool m_bKeyInit; 
@@ -61,8 +46,10 @@ private:
 	uint8_t* m_pKey;
 	//Number of Rounds
 	int32_t m_iROUNDS;
+
 	//Expand a user-supplied key material into a session key.
-	void MakeKey(void);
+	void makeKey(void);
+	
 	//Encryption (m_Ke) round key
 	int32_t m_Ke[MAX_ROUNDS+1][MAX_BC];
 	//Decryption (m_Kd) round key
@@ -96,13 +83,16 @@ private:
 	static const int32_t m_sm_shifts[3][4][2];
 
 	//Function to convert string of unsigned chars to string of chars
-	void CharStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize);
+	void charStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize);
+	
 	//Function to convert unsigned char to string of length 2
-	void Char2Hex(unsigned char ch, char* szHex);
+	void char2Hex(unsigned char ch, char* szHex);
+	
 	//Function to convert string of chars to string of unsigned chars
-	void HexStr2CharStr(string& pszHexStr, unsigned char* pucCharStr, int iSize);
+	void hexStr2CharStr(const string& pszHexStr, unsigned char* pucCharStr, int iSize);
+	
 	//Function to convert string of length 2 to unsigned char
-	void Hex2Char(char const* szHex, unsigned char& rch);
+	void hex2Char(char const* szHex, unsigned char& rch);
 
 };
 

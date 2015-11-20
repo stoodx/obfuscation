@@ -5,18 +5,7 @@
 //#define BLOCK_24 24
 #define BLOCK_32 32
 
-/*const  uint8_t CAES::m_KEY_16_DEFAULT[] = 
-{
-	0x0f, 0x0e, 0x0d, 0x0c, 0x0a, 0x09, 0x08, 0x07, 
-	0xf0, 0xe0, 0xd0, 0xc0, 0xa0, 0x90, 0x80, 0x70
-}*/;
-//const  uint8_t CAES::m_KEY_24_DEFAULT[] = 
-//{
-//	0x0f, 0x0e, 0x0d, 0x0c, 0x0a, 0x09, 0x08, 0x07, 
-//	0xf0, 0xe0, 0xd0, 0xc0, 0xa0, 0x90, 0x80, 0x70, 
-//	0xf1, 0xe1, 0xd1, 0xc1, 0xa1, 0x91, 0x81, 0x71 
-//};
-//
+
 const  uint8_t CAES::m_KEY_32_DEFAULT[] = 
 {
 	0x0f, 0x0e, 0x0d, 0x0c, 0x0a, 0x09, 0x08, 0x07, 
@@ -910,7 +899,7 @@ CAES::CAES()
 	m_pKey = new uint8_t[m_iBlockSize];
 	ASSERT(m_pKey);
 	memcpy(m_pKey, m_KEY_32_DEFAULT, m_iBlockSize);
-	MakeKey();
+	makeKey();
 	m_bKeyInit = true;
 }
 
@@ -924,7 +913,32 @@ CAES::~CAES(void)
 //Encrypt a string
 //Input: a plain text in strIn
 //Return: an encrypted string by AES or empty string and throw by error 
-string CAES::EncryptString(wstring strIn)
+const string CAES::encryptString(const string& strIn)
+{
+	if (!strIn.empty())
+	{
+		CAES aes;
+		string strInternalIn("");
+		string strInternalOut("");
+		int nSize = strIn.size();
+		for (int i = 0; i < nSize; i++)
+		{
+			strInternalIn += strIn[i];
+			if (strInternalIn.size() == aes.m_iBlockSize)
+			{
+				strInternalOut.append(aes.encryptInternalString(strInternalIn));
+				strInternalIn = "";
+			}
+		}
+		if (!strInternalIn.empty())
+			strInternalOut.append(aes.encryptInternalString(strInternalIn));
+		return strInternalOut;
+	}
+	else
+		return strIn;
+}
+
+const string CAES::encryptInternalString(const string& strIn)
 {
 	string strOut;
 	if (!m_bKeyInit)
@@ -937,10 +951,6 @@ string CAES::EncryptString(wstring strIn)
 		throw exception("Error: An input string is empty");
 		return strOut;
 	}
-	//if (m_iBlockSize == BLOCK_16)
-	//{
-	//	return EncryptString16(strIn);
-	//}
 
 	int32_t BC = m_iBlockSize / 4;
 	int32_t SC = (BC == 4) ? 0 : (BC == 6 ? 1 : 2);
@@ -984,96 +994,42 @@ string CAES::EncryptString(wstring strIn)
 		result[j++] = m_sm_S[(m_t[(i + s2) % BC] >>  8) & 0xFF] ^ (tt >>  8);
 		result[j++] = m_sm_S[ m_t[(i + s3) % BC] & 0xFF] ^ tt;
 	}
-	CharStr2HexStr((unsigned char*) result, strOut, m_iBlockSize);
+	charStr2HexStr((unsigned char*) result, strOut, m_iBlockSize);
 	delete [] result;
 	return strOut;
 }
 
-////Encrypt a string by 16
-////Input: a plain text in strIn
-////Return: an encrypted string by AES or empty string and throw by error  
-//string CAES::EncryptString16(wstring strIn)
-//{
-//	string strOut;
-//	const unsigned char* in = (unsigned char*)strIn.c_str();
-//	int32_t* Ker = m_Ke[0];
-//	int t0  = ((unsigned char)*(in++) << 24);
-//	t0 |= ((unsigned char)*(in++) << 16);
-//	t0 |= ((unsigned char)*(in++) << 8);
-//	(t0 |= (unsigned char)*(in++)) ^= Ker[0];
-//	int t1 = ((unsigned char)*(in++) << 24);
-//	t1 |= ((unsigned char)*(in++) << 16);
-//	t1 |= ((unsigned char)*(in++) << 8);
-//	(t1 |= (unsigned char)*(in++)) ^= Ker[1];
-//	int t2 = ((unsigned char)*(in++) << 24);
-//	t2 |= ((unsigned char)*(in++) << 16);
-//	t2 |= ((unsigned char)*(in++) << 8);
-//	(t2 |= (unsigned char)*(in++)) ^= Ker[2];
-//	int t3 = ((unsigned char)*(in++) << 24);
-//	t3 |= ((unsigned char)*(in++) << 16);
-//	t3 |= ((unsigned char)*(in++) << 8);
-//	(t3 |= (unsigned char)*(in++)) ^= Ker[3];
-//	int32_t a0, a1, a2, a3;
-//	//Apply Round Transforms
-//	for (int32_t r = 1; r < m_iROUNDS; r++)
-//	{
-//		Ker = m_Ke[r];
-//		a0 = (m_sm_T1[(t0 >> 24) & 0xFF] ^
-//			m_sm_T2[(t1 >> 16) & 0xFF] ^
-//			m_sm_T3[(t2 >>  8) & 0xFF] ^
-//			m_sm_T4[t3 & 0xFF]) ^ Ker[0];
-//		a1 = (m_sm_T1[(t1 >> 24) & 0xFF] ^
-//			m_sm_T2[(t2 >> 16) & 0xFF] ^
-//			m_sm_T3[(t3 >>  8) & 0xFF] ^
-//			m_sm_T4[t0 & 0xFF]) ^ Ker[1];
-//		a2 = (m_sm_T1[(t2 >> 24) & 0xFF] ^
-//			m_sm_T2[(t3 >> 16) & 0xFF] ^
-//			m_sm_T3[(t0 >>  8) & 0xFF] ^
-//			m_sm_T4[t1 & 0xFF]) ^ Ker[2];
-//		a3 = (m_sm_T1[(t3 >> 24) & 0xFF] ^
-//			m_sm_T2[(t0 >> 16) & 0xFF] ^
-//			m_sm_T3[(t1 >>  8) & 0xFF] ^
-//			m_sm_T4[t2 & 0xFF]) ^ Ker[3];
-//		t0 = a0;
-//		t1 = a1;
-//		t2 = a2;
-//		t3 = a3;
-//	}
-//	//Last Round is special
-//	Ker = m_Ke[m_iROUNDS];
-//	int32_t tt = Ker[0];
-//	char result[16] = {0};
-//	result[0] = m_sm_S[(t0 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[1] = m_sm_S[(t1 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[2] = m_sm_S[(t2 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[3] = m_sm_S[t3 & 0xFF] ^ tt;
-//	tt = Ker[1];
-//	result[4] = m_sm_S[(t1 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[5] = m_sm_S[(t2 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[6] = m_sm_S[(t3 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[7] = m_sm_S[t0 & 0xFF] ^ tt;
-//	tt = Ker[2];
-//	result[8] = m_sm_S[(t2 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[9] = m_sm_S[(t3 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[10] = m_sm_S[(t0 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[11] = m_sm_S[t1 & 0xFF] ^ tt;
-//	tt = Ker[3];
-//	result[12] = m_sm_S[(t3 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[13] = m_sm_S[(t0 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[14] = m_sm_S[(t1 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[15] = m_sm_S[t2 & 0xFF] ^ tt;
-//
-//	CharStr2HexStr((unsigned char*) result, strOut, m_iBlockSize);
-//	return strOut;
-//}
-
 
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
-//Return: a plain text or empty string and throw by error  
-wstring CAES::DecryptString(string strIn)
+//Return: a plain text or empty string and throw by error 
+const string CAES::decryptString(const string& strIn)
 {
-	wstring strOut;
+	if (!strIn.empty())
+	{
+		CAES aes;
+		string strInternalIn("");
+		string strInternalOut("");
+		int nSize = strIn.size();
+		int nDecodeBlock = aes.m_iBlockSize * 2; //each decoded char has 2 print chars
+		for (int i = 0; i < nSize; i++)
+		{
+			strInternalIn += strIn[i];
+			if (strInternalIn.size() == nDecodeBlock)
+			{
+				strInternalOut.append(aes.decryptInternalString(strInternalIn).c_str());
+				strInternalIn = "";
+			}
+		}
+		return strInternalOut;
+	}
+	else
+		return strIn;
+}
+
+const string CAES::decryptInternalString(const string& strIn)
+{
+	string strOut;
 	if (!m_bKeyInit)
 	{
 		throw exception("Error: Not init"); 
@@ -1085,8 +1041,6 @@ wstring CAES::DecryptString(string strIn)
 		return strOut;
 	}
 
-/*	if (BLOCK_16 == m_iBlockSize)
-		return DecryptString16(strIn)*/;
 
 	int32_t BC = m_iBlockSize / 4;
 	int32_t SC = BC == 4 ? 0 : (BC == 6 ? 1 : 2);
@@ -1101,7 +1055,7 @@ wstring CAES::DecryptString(string strIn)
 	char* inFull = new char[m_iBlockSize + 1];
 	ASSERT(inFull);
 	memset(inFull, 0, m_iBlockSize+1);
-	HexStr2CharStr(strIn, (unsigned char*) inFull, m_iBlockSize);
+	hexStr2CharStr(strIn, (unsigned char*) inFull, m_iBlockSize);
 	char* in = inFull;
 	for(i=0; i<BC; i++)
 	{
@@ -1122,9 +1076,9 @@ wstring CAES::DecryptString(string strIn)
 		memcpy(m_t, m_a, 4*BC);
 	}
 	int32_t j;
-	char* result = new char[m_iBlockSize + 2];
+	char* result = new char[m_iBlockSize + 1];
 	ASSERT(result);
-	memset(result, 0,  m_iBlockSize + 2);
+	memset(result, 0,  m_iBlockSize + 1);
 	//Last Round is Special
 	for(i=0, j=0; i<BC; i++)
 	{
@@ -1134,116 +1088,17 @@ wstring CAES::DecryptString(string strIn)
 		result[j++] = m_sm_Si[(m_t[(i + s2) % BC] >>  8) & 0xFF] ^ (tt >>  8);
 		result[j++] = m_sm_Si[ m_t[(i + s3) % BC] & 0xFF] ^ tt;
 	}
-	strOut.reserve(m_iBlockSize/2 + 1);
-	memcpy((void*)strOut.c_str(), result, m_iBlockSize + 2);
+	strOut.reserve(m_iBlockSize + 1);
+	memcpy((void*)strOut.c_str(), result, m_iBlockSize + 1);
 	delete [] result;
 	return strOut;
 }
 
-////Decrypt a string by16
-////Input: a decrypted text by AES in strIn
-////Return: a plain text or empty string and throw by error  
-//wstring CAES::DecryptString16(string strIn)
-//{
-//	wstring strOut;
-//	char* inFull = new char[m_iBlockSize + 1];
-//	ASSERT(inFull);
-//	memset(inFull, 0, m_iBlockSize+1);
-//	HexStr2CharStr(strIn, (unsigned char*) inFull, m_iBlockSize);
-//	char* in = inFull;
-//
-//	int32_t* Kdr = m_Kd[0];
-//	int32_t t0 = ((unsigned char)*(in++) << 24);
-//	t0 = t0 | ((unsigned char)*(in++) << 16);
-//	t0 |= ((unsigned char)*(in++) << 8);
-//	(t0 |= (unsigned char)*(in++)) ^= Kdr[0];
-//	int t1 = ((unsigned char)*(in++) << 24);
-//	t1 |= ((unsigned char)*(in++) << 16);
-//	t1 |= ((unsigned char)*(in++) << 8);
-//	(t1 |= (unsigned char)*(in++)) ^= Kdr[1];
-//	int32_t t2 = ((unsigned char)*(in++) << 24);
-//	t2 |= ((unsigned char)*(in++) << 16);
-//	t2 |= ((unsigned char)*(in++) << 8);
-//	(t2 |= (unsigned char)*(in++)) ^= Kdr[2];
-//	int32_t t3 = ((unsigned char)*(in++) << 24);
-//	t3 |= ((unsigned char)*(in++) << 16);
-//	t3 |= ((unsigned char)*(in++) << 8);
-//	(t3 |= (unsigned char)*(in++)) ^= Kdr[3];
-//
-//	delete [] inFull;
-//
-//	int32_t a0, a1, a2, a3;
-//	for(int32_t r = 1; r < m_iROUNDS; r++) // apply round transforms
-//	{
-//		Kdr = m_Kd[r];
-//		a0 = (m_sm_T5[(t0 >> 24) & 0xFF] ^
-//			m_sm_T6[(t3 >> 16) & 0xFF] ^
-//			m_sm_T7[(t2 >>  8) & 0xFF] ^
-//			m_sm_T8[ t1        & 0xFF] ) ^ Kdr[0];
-//		a1 = (m_sm_T5[(t1 >> 24) & 0xFF] ^
-//			m_sm_T6[(t0 >> 16) & 0xFF] ^
-//			m_sm_T7[(t3 >>  8) & 0xFF] ^
-//			m_sm_T8[ t2        & 0xFF] ) ^ Kdr[1];
-//		a2 = (m_sm_T5[(t2 >> 24) & 0xFF] ^
-//			m_sm_T6[(t1 >> 16) & 0xFF] ^
-//			m_sm_T7[(t0 >>  8) & 0xFF] ^
-//			m_sm_T8[ t3        & 0xFF] ) ^ Kdr[2];
-//		a3 = (m_sm_T5[(t3 >> 24) & 0xFF] ^
-//			m_sm_T6[(t2 >> 16) & 0xFF] ^
-//			m_sm_T7[(t1 >>  8) & 0xFF] ^
-//			m_sm_T8[ t0        & 0xFF] ) ^ Kdr[3];
-//		t0 = a0;
-//		t1 = a1;
-//		t2 = a2;
-//		t3 = a3;
-//	}
-//	//Last Round is special
-//	Kdr = m_Kd[m_iROUNDS];
-//	int32_t tt = Kdr[0];
-//	char result[18] = {0};
-//	result[ 0] = m_sm_Si[(t0 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[ 1] = m_sm_Si[(t3 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[ 2] = m_sm_Si[(t2 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[ 3] = m_sm_Si[ t1 & 0xFF] ^ tt;
-//	tt = Kdr[1];
-//	result[ 4] = m_sm_Si[(t1 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[ 5] = m_sm_Si[(t0 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[ 6] = m_sm_Si[(t3 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[ 7] = m_sm_Si[ t2 & 0xFF] ^ tt;
-//	tt = Kdr[2];
-//	result[ 8] = m_sm_Si[(t2 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[ 9] = m_sm_Si[(t1 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[10] = m_sm_Si[(t0 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[11] = m_sm_Si[ t3 & 0xFF] ^ tt;
-//	tt = Kdr[3];
-//	result[12] = m_sm_Si[(t3 >> 24) & 0xFF] ^ (tt >> 24);
-//	result[13] = m_sm_Si[(t2 >> 16) & 0xFF] ^ (tt >> 16);
-//	result[14] = m_sm_Si[(t1 >>  8) & 0xFF] ^ (tt >>  8);
-//	result[15] = m_sm_Si[ t0 & 0xFF] ^ tt;
-//	
-//	strOut.reserve(m_iBlockSize/2 + 1);
-//	memcpy((void*)strOut.c_str(), result, m_iBlockSize + 2);
-//
-//	return strOut;
-//}
-
-
 //Expand a user-supplied key material into a session key.
-void CAES::MakeKey(void)
+void CAES::makeKey(void)
 {
 	//Calculate Number of Rounds
 	m_iROUNDS = 14;
-	//switch(m_iBlockSize)
-	//{
-	//case BLOCK_16:
-	//		m_iROUNDS = 10;
-	//		break;
-	//case BLOCK_24:
-	//		m_iROUNDS = 12;
-	//		break;
-	//	default: // 32 bytes = 256 bits
-	//		m_iROUNDS = 14;
-	//}
 	int32_t iBC = m_iBlockSize / 4;
 	int32_t i, j;
 	for(i=0; i<=m_iROUNDS; i++)
@@ -1320,7 +1175,7 @@ void CAES::MakeKey(void)
 }
 
 //Function to convert string of unsigned chars to string of chars
-void CAES::CharStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize)
+void CAES::charStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize)
 {
 	ASSERT(pucCharStr);
 
@@ -1329,13 +1184,13 @@ void CAES::CharStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, in
 	pszHexStr[0] = 0;
 	for(i=0; i<iSize; i++)
 	{
-		Char2Hex(pucCharStr[i], szHex);
+		char2Hex(pucCharStr[i], szHex);
 		pszHexStr.append(szHex);
 	}
 }
 
 //Function to convert unsigned char to string of length 2
-void CAES::Char2Hex(unsigned char ch, char* szHex)
+void CAES::char2Hex(unsigned char ch, char* szHex)
 {
 	unsigned char byte[2];
 	byte[0] = ch/16;
@@ -1351,7 +1206,7 @@ void CAES::Char2Hex(unsigned char ch, char* szHex)
 }
 
 //Function to convert string of chars to string of unsigned chars
-void CAES::HexStr2CharStr(string& pszHexStr, unsigned char* pucCharStr, int iSize)
+void CAES::hexStr2CharStr(const string& pszHexStr, unsigned char* pucCharStr, int iSize)
 {
 	ASSERT(!pszHexStr.empty() && pucCharStr);
 
@@ -1360,13 +1215,13 @@ void CAES::HexStr2CharStr(string& pszHexStr, unsigned char* pucCharStr, int iSiz
 	const char* pStr = pszHexStr.c_str();
 	for(i=0; i<iSize; i++)
 	{
-		Hex2Char(pStr + 2*i, ch);
+		hex2Char(pStr + 2*i, ch);
 		pucCharStr[i] = ch;
 	}
 }
 
 //Function to convert string of length 2 to unsigned char
-void CAES::Hex2Char(char const* szHex, unsigned char& rch)
+void CAES::hex2Char(char const* szHex, unsigned char& rch)
 {
 	rch = 0;
 	for(int32_t i=0; i<2; i++)
