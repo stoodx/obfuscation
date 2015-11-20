@@ -895,6 +895,7 @@ CAES::CAES()
 	//, m_keyType(AES_256) 
 	, m_pKey(NULL)
 	, m_iROUNDS(0)
+	, m_strDecodeOutW(NULL)
 {
 	m_pKey = new uint8_t[m_iBlockSize];
 	ASSERT(m_pKey);
@@ -908,6 +909,8 @@ CAES::~CAES(void)
 {
 	if (m_pKey)
 		delete m_pKey;
+	if (m_strDecodeOutW)
+		delete [] m_strDecodeOutW;
 }
 
 //Encrypt a string
@@ -944,12 +947,10 @@ const string CAES::encryptInternalString(const string& strIn)
 	if (!m_bKeyInit)
 	{
 		throw exception("Error: Not init"); 
-		return strOut;
 	}
 	if (strIn.empty())
 	{
 		throw exception("Error: An input string is empty");
-		return strOut;
 	}
 
 	int32_t BC = m_iBlockSize / 4;
@@ -1003,29 +1004,76 @@ const string CAES::encryptInternalString(const string& strIn)
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
 //Return: a plain text or empty string and throw by error 
-const string CAES::decryptString(const string& strIn)
+const wchar_t* CAES::decryptString(wstring strInW)
 {
-	if (!strIn.empty())
+	if (!strInW.empty())
 	{
 		CAES aes;
-		string strInternalIn("");
-		string strInternalOut("");
-		int nSize = strIn.size();
+		if (aes.m_strDecodeOutW)
+		{
+			delete [] aes.m_strDecodeOutW;
+			aes.m_strDecodeOutW = NULL;
+		}
+		aes.m_strDecodeOutW = L"";
+		string strInternalInA = "";
+		string strInternalOutA = "";
+		char* strInA = NULL;
+		int nSize = strInW.size();
+		strInA = new char[nSize + 1];
+		if (!strInA)
+			throw exception("Error: no memory"); 
+		memset(strInA, 0, nSize + 1);
+		aes.convertUnicodeToAscii(strInW.c_str(), strInA);
 		int nDecodeBlock = aes.m_iBlockSize * 2; //each decoded char has 2 print chars
 		for (int i = 0; i < nSize; i++)
 		{
-			strInternalIn += strIn[i];
-			if (strInternalIn.size() == nDecodeBlock)
+			char ch;
+			ch = *(strInA + i);
+			strInternalInA += ch;
+			if (strInternalInA.size() == nDecodeBlock)
 			{
-				strInternalOut.append(aes.decryptInternalString(strInternalIn).c_str());
-				strInternalIn = "";
+				strInternalOutA.append(aes.decryptInternalString(strInternalInA).c_str());
+				strInternalInA = "";
 			}
 		}
-		return strInternalOut;
+		delete [] strInA;
+		if (!strInternalOutA.empty())
+		{
+			size_t nOutpitSize = strInternalOutA.size();
+			aes.m_strDecodeOutW = new wchar_t[nOutpitSize + 1];
+			if (!aes.m_strDecodeOutW)
+				throw exception("Error: no memory"); 
+			memset(aes.m_strDecodeOutW, 0, sizeof(wchar_t) * nOutpitSize + 1);
+			aes.convertAsciiToUnicode(strInternalOutA.c_str(), (wchar_t*)aes.m_strDecodeOutW);
+		}
+		return aes.m_strDecodeOutW;
 	}
 	else
-		return strIn;
+		return NULL;
 }
+
+bool CAES::convertAsciiToUnicode(const char * strAscii, wchar_t * strUnicode)
+{
+	int len, i;
+	if((strUnicode == NULL) || (strAscii == NULL))
+		return false;
+	len = strlen(strAscii);
+	for(i=0; i<len+1;i++)
+		*strUnicode++ = static_cast<wchar_t>(*strAscii++);
+	return true;
+}
+
+bool CAES::convertUnicodeToAscii(const wchar_t * strUnicode, char * strAscii)
+{
+	int len, i;
+	if((strUnicode == NULL) || (strAscii == NULL))
+		return false;
+	len = wcslen(strUnicode);
+	for(i=0;i<len+1;i++)
+		*strAscii++ = static_cast<char>(*strUnicode++);
+	return true;
+}
+
 
 const string CAES::decryptInternalString(const string& strIn)
 {
@@ -1033,12 +1081,10 @@ const string CAES::decryptInternalString(const string& strIn)
 	if (!m_bKeyInit)
 	{
 		throw exception("Error: Not init"); 
-		return strOut;
 	}
 	if (strIn.empty())
 	{
 		throw exception("Error: An input string is empty");
-		return strOut;
 	}
 
 

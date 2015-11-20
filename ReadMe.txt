@@ -53,13 +53,18 @@ static const string encryptString(const string& strIn);
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
 //Return: a plain text or empty string and throw by error  
-static const string decryptString(const string& strIn);
+static const wstring decryptString(const wstring& strIn);
 
-Usage
+Usage:
 
 string strText ("blabla");
 strText =  CAES::encryptString(strText);
-string strText2 = CAES::decryptString(strText);
+wstring strTextUnicode = ws2s(strText);  
+wstring strText2 = CAES::decryptString(strTextUnicode);
+
+Schema of operations:
+
+string ->(encoding)->string->(compiler)->wstring->(decoding)->wstring
 
 
 

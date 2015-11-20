@@ -1,16 +1,16 @@
 #pragma once
 
 /*
-Class CAES for AES 256 encoding/decoding strings in Unicode(UTF-16)
-Environment: MS Windows x86/x64  
-Use library: STL C++11
+Class CAES for AES 256 encoding/decoding strings in UTF-16
 
 by http://www.codeproject.com/Articles/1380/A-C-Implementation-of-the-Rijndael-Encryption-Decr
+
+string ->(encoding)->string->(compiler)->wstring->(decoding)->wstring  
 
 */
 #include <string>
 #include <stdint.h>
-#include <codecvt>
+//#include <codecvt>
 
 using namespace std;
 
@@ -30,7 +30,7 @@ public:
 	//Decrypt a string
 	//Input: a decrypted text by AES in strIn
 	//Return: a plain text or empty string and throw by error  
-	static const string decryptString(const string& strIn); 
+	static const wchar_t* decryptString(const wstring strInW); 
 private:
 	const string encryptInternalString(const string& strIn); 
 	const string decryptInternalString(const string& strIn); 
@@ -59,8 +59,6 @@ private:
 	int32_t m_a[MAX_BC];
 	int32_t m_t[MAX_BC];
 	//default keys
-	//static const  uint8_t m_KEY_16_DEFAULT[16];
-	//static const  uint8_t m_KEY_24_DEFAULT[24]; 
 	static const  uint8_t m_KEY_32_DEFAULT[32]; 
 
 	static const int8_t m_sm_S[256];
@@ -93,6 +91,11 @@ private:
 	
 	//Function to convert string of length 2 to unsigned char
 	void hex2Char(char const* szHex, unsigned char& rch);
+
+	wchar_t* m_strDecodeOutW;
+
+	bool convertAsciiToUnicode(const char * strAscii, wchar_t * strUnicode);
+	bool convertUnicodeToAscii(const wchar_t * strUnicode, char * strAscii);
 
 };
 
