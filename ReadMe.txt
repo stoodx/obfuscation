@@ -43,28 +43,37 @@ Return values:
 
 Use of AES 256
 
-Demo project is DemoAES with the DemoAES.exe in Release.
+Demo project is DemoAES.
 
 //Encrypt a string
 //Input: a plain text in strIn
-/Return: an encrypted string by AES or empty string and throw by error  
+//Return: an encrypted string by AES or empty string and throw by error  
 static const string encryptString(const string& strIn);
 
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
 //Return: a plain text or empty string and throw by error  
-static const wstring decryptString(const wstring& strIn);
+static void decryptString(wstring strInW, wstring& strOutW); 
 
 Usage:
 
-string strText ("blabla");
+#include "AES.h"
+
+string strText = CStringA(m_strText);
 strText =  CAES::encryptString(strText);
-wstring strTextUnicode = ws2s(strText);  
-wstring strText2 = CAES::decryptString(strTextUnicode);
+m_strEncode = CString(strText.c_str()); //CString m_strEncode
+wstring strTextOutW;
+CAES::decryptString(m_strEncode.GetBuffer(), strTextOutW);
+m_strDecode = strTextOutW.c_str(); //CString m_strDecode
 
 Schema of operations:
 
 string ->(encoding)->string->(compiler)->wstring->(decoding)->wstring
+
+Test of AES 256
+
+Use \trunk\DemoAES\Release\DemosAES.exe for test of Encrypt/Decrypt.
+
 
 
 
@@ -100,7 +109,7 @@ If your solution has several projects for obfuscation, then parser should be in 
 
 3)Open the project property.
 
-4)Select Configuration: Release or Debug.
+4)Select Configuration: Release (recommended) or Debug.
 
 5)Open Build Events/Pre-Build Event.  Set "parser o" in Command Line. Set "Yes" in Use In Build if you wish 
 to enable the obfuscation or set "No" for its disabling.   
@@ -116,7 +125,38 @@ to enable the code restoring or set "No" for its disabling.
 
 and ENCRYPT(....) for obfuscated strings, for example, see Test project.
 
-8)Build the project, use the output log for control.
+8)For decrypt operations:
+
+- Move AES.cpp and AES.h from DemoAES project to your project.
+- Create the get() method for text decrypting by CAES::decryptString(), see above. 
+
+for example,
+
+wchar_t* CSetting::get( wchar_t* strKey) 
+{
+	//char-2
+	std::string strA =  ws2s(strKey);
+	std::string  strDecA("");
+	int nLen = strA.size();
+	for(int i = 0; i < nLen; i++)
+	{
+		char ch = strA.at(i);
+		if (ch >= '\"')
+			ch -= 2;
+		strDecA += ch;
+	}
+	m_str[m_nIndexStr] = s2ws(strDecA);
+	int nIndex = m_nIndexStr;
+	if (m_nIndexStr == MAX_STRING_NUMBER)
+		m_nIndexStr = 0;
+	else
+		m_nIndexStr++;
+	return (wchar_t*)m_str[nIndex].c_str();
+} 
+
+- add #include "AES.h" to .cpp where will be get().
+
+9)Build the project, use the output log for control.
 
 
 Notes before usage:

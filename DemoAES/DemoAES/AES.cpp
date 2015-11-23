@@ -895,7 +895,6 @@ CAES::CAES()
 	//, m_keyType(AES_256) 
 	, m_pKey(NULL)
 	, m_iROUNDS(0)
-	, m_strDecodeOutW(NULL)
 {
 	m_pKey = new uint8_t[m_iBlockSize];
 	ASSERT(m_pKey);
@@ -909,8 +908,6 @@ CAES::~CAES(void)
 {
 	if (m_pKey)
 		delete m_pKey;
-	if (m_strDecodeOutW)
-		delete [] m_strDecodeOutW;
 }
 
 //Encrypt a string
@@ -1004,17 +1001,12 @@ const string CAES::encryptInternalString(const string& strIn)
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
 //Return: a plain text or empty string and throw by error 
-const wchar_t* CAES::decryptString(wstring strInW)
+void CAES::decryptString(wstring strInW, wstring& strOutW)
 {
+	strOutW = L"";
 	if (!strInW.empty())
 	{
 		CAES aes;
-		if (aes.m_strDecodeOutW)
-		{
-			delete [] aes.m_strDecodeOutW;
-			aes.m_strDecodeOutW = NULL;
-		}
-		aes.m_strDecodeOutW = L"";
 		string strInternalInA = "";
 		string strInternalOutA = "";
 		char* strInA = NULL;
@@ -1032,34 +1024,43 @@ const wchar_t* CAES::decryptString(wstring strInW)
 			strInternalInA += ch;
 			if (strInternalInA.size() == nDecodeBlock)
 			{
-				strInternalOutA.append(aes.decryptInternalString(strInternalInA).c_str());
+				char* strResultA = NULL;
+				aes.decryptInternalString(strInternalInA, &strResultA);
+				if(strResultA)
+				{
+					strInternalOutA.append(strResultA);
+					delete [] strResultA;
+				}
 				strInternalInA = "";
 			}
 		}
 		delete [] strInA;
 		if (!strInternalOutA.empty())
 		{
-			size_t nOutpitSize = strInternalOutA.size();
-			aes.m_strDecodeOutW = new wchar_t[nOutpitSize + 1];
-			if (!aes.m_strDecodeOutW)
+			size_t nOutputSize = strInternalOutA.size();
+			wchar_t* strTempW = NULL;
+			strTempW = new wchar_t[nOutputSize + 1];
+			if (!strTempW)
+			{
 				throw exception("Error: no memory"); 
-			memset(aes.m_strDecodeOutW, 0, sizeof(wchar_t) * nOutpitSize + 1);
-			aes.convertAsciiToUnicode(strInternalOutA.c_str(), (wchar_t*)aes.m_strDecodeOutW);
+			}
+			memset(strTempW, 0, sizeof(wchar_t)* (nOutputSize + 1)); 
+			aes.convertAsciiToUnicode(strInternalOutA.c_str(), strTempW);
+			strOutW = strTempW;
+			delete [] strTempW;
 		}
-		return aes.m_strDecodeOutW;
 	}
-	else
-		return NULL;
 }
 
 bool CAES::convertAsciiToUnicode(const char * strAscii, wchar_t * strUnicode)
 {
-	int len, i;
 	if((strUnicode == NULL) || (strAscii == NULL))
 		return false;
-	len = strlen(strAscii);
-	for(i=0; i<len+1;i++)
-		*strUnicode++ = static_cast<wchar_t>(*strAscii++);
+	int nLen = strlen(strAscii); 
+	int nRet = 0;
+	nRet = MultiByteToWideChar(GetACP(),  MB_ERR_INVALID_CHARS, strAscii, nLen, strUnicode, sizeof(wchar_t) * nLen + 1);
+	if (!nRet)
+		return false;
 	return true;
 }
 
@@ -1075,18 +1076,21 @@ bool CAES::convertUnicodeToAscii(const wchar_t * strUnicode, char * strAscii)
 }
 
 
-const string CAES::decryptInternalString(const string& strIn)
+void CAES::decryptInternalString(const string& strInInternalA, char** strOutInternalA)
 {
-	string strOut;
 	if (!m_bKeyInit)
 	{
 		throw exception("Error: Not init"); 
 	}
-	if (strIn.empty())
+	if (strInInternalA.empty())
 	{
 		throw exception("Error: An input string is empty");
 	}
-
+	if (*strOutInternalA)
+	{
+		delete [] *strOutInternalA;
+		*strOutInternalA = NULL;
+	}
 
 	int32_t BC = m_iBlockSize / 4;
 	int32_t SC = BC == 4 ? 0 : (BC == 6 ? 1 : 2);
@@ -1101,7 +1105,7 @@ const string CAES::decryptInternalString(const string& strIn)
 	char* inFull = new char[m_iBlockSize + 1];
 	ASSERT(inFull);
 	memset(inFull, 0, m_iBlockSize+1);
-	hexStr2CharStr(strIn, (unsigned char*) inFull, m_iBlockSize);
+	hexStr2CharStr(strInInternalA, (unsigned char*) inFull, m_iBlockSize);
 	char* in = inFull;
 	for(i=0; i<BC; i++)
 	{
@@ -1134,10 +1138,12 @@ const string CAES::decryptInternalString(const string& strIn)
 		result[j++] = m_sm_Si[(m_t[(i + s2) % BC] >>  8) & 0xFF] ^ (tt >>  8);
 		result[j++] = m_sm_Si[ m_t[(i + s3) % BC] & 0xFF] ^ tt;
 	}
-	strOut.reserve(m_iBlockSize + 1);
-	memcpy((void*)strOut.c_str(), result, m_iBlockSize + 1);
+	int nLen = strlen(result);
+	*strOutInternalA = new char[nLen + 1];
+	if (!*strOutInternalA)
+		 exception("Error: No memory");
+	strcpy_s(*strOutInternalA, nLen +1, result);
 	delete [] result;
-	return strOut;
 }
 
 //Expand a user-supplied key material into a session key.

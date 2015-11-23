@@ -10,7 +10,7 @@ string ->(encoding)->string->(compiler)->wstring->(decoding)->wstring
 */
 #include <string>
 #include <stdint.h>
-//#include <codecvt>
+#include <codecvt>
 
 using namespace std;
 
@@ -30,10 +30,10 @@ public:
 	//Decrypt a string
 	//Input: a decrypted text by AES in strIn
 	//Return: a plain text or empty string and throw by error  
-	static const wchar_t* decryptString(const wstring strInW); 
+	static void decryptString(wstring strInW, wstring& strOutW); 
 private:
 	const string encryptInternalString(const string& strIn); 
-	const string decryptInternalString(const string& strIn); 
+	void decryptInternalString(const string& strInInternalA, char** strOutInternalA); 
 
 	enum { MAX_BLOCK_SIZE=32, MAX_ROUNDS=14, MAX_KC=8, MAX_BC=8 };
 
@@ -91,8 +91,6 @@ private:
 	
 	//Function to convert string of length 2 to unsigned char
 	void hex2Char(char const* szHex, unsigned char& rch);
-
-	wchar_t* m_strDecodeOutW;
 
 	bool convertAsciiToUnicode(const char * strAscii, wchar_t * strUnicode);
 	bool convertUnicodeToAscii(const wchar_t * strUnicode, char * strAscii);
