@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Arch.h"
+#include "AES.h"
 #include "ParserEndgine.h"
 
 CWinApp theApp;
@@ -555,17 +556,21 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 
 CStringA ParserEndgine::encodeText(CStringA strText)
 {
-	//plus 2 to each char
-	int nLen = strText.GetLength();
-	CStringA str("");
-	for (int i = 0; i < nLen; i++)
-	{
-		char ch = strText.GetAt(i);
-		if (ch >= '\"')
-			ch += 2;
-		str += ch;
-	}
-	return str;
+	////plus 2 to each char
+	//int nLen = strText.GetLength();
+	//CStringA str("");
+	//for (int i = 0; i < nLen; i++)
+	//{
+	//	char ch = strText.GetAt(i);
+	//	if (ch >= '\"')
+	//		ch += 2;
+	//	str += ch;
+	//}
+	//return str;
+
+	string strIn(strText.GetBuffer());
+	string strOut =	CAES::encryptString(strIn);
+	return CStringA(strOut.c_str());
 }
 
 int ParserEndgine::getFileError(CFileException *e)

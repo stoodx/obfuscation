@@ -48,7 +48,7 @@ Demo project is DemoAES.
 //Encrypt a string
 //Input: a plain text in strIn
 //Return: an encrypted string by AES or empty string and throw by error  
-static const string encryptString(const string& strIn);
+static void encryptString(const string& strIn, string& strOut);
 
 //Decrypt a string
 //Input: a decrypted text by AES in strIn
@@ -59,16 +59,17 @@ Usage:
 
 #include "AES.h"
 
-string strText = CStringA(m_strText);
-strText =  CAES::encryptString(strText);
-m_strEncode = CString(strText.c_str()); //CString m_strEncode
-wstring strTextOutW;
-CAES::decryptString(m_strEncode.GetBuffer(), strTextOutW);
-m_strDecode = strTextOutW.c_str(); //CString m_strDecode
+	string strTextA = CStringA(m_strText);
+	string strOutTextA;
+	CAES::encryptString(strTextA, strOutTextA);
+	m_strEncode = CString(strOutTextA.c_str());
+	wstring strTextOutW;
+	CAES::decryptString(m_strEncode.GetBuffer(), strTextOutW);
+	m_strDecode = strTextOutW.c_str();
 
 Schema of operations:
 
-string ->(encoding)->string->(compiler)->wstring->(decoding)->wstring
+string ->(encrypt)->string->(compiler)->wstring->(encrypt)->wstring
 
 Test of AES 256
 

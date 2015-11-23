@@ -129,6 +129,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AES.h" />
     <ClInclude Include="Arch.h" />
     <ClInclude Include="gtest\gtest-death-test.h" />
     <ClInclude Include="gtest\gtest-message.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AES.cpp" />
     <ClCompile Include="Arch.cpp" />
     <ClCompile Include="EngineTestParser.cpp" />
     <ClCompile Include="Parser.cpp" />

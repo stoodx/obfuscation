@@ -892,20 +892,12 @@ const int8_t CAES::m_sm_Si[256] =
 CAES::CAES() 
 	: m_bKeyInit(false)
 	, m_iBlockSize(BLOCK_32)
+	//, m_keyType(AES_256) 
 	, m_pKey(NULL)
 	, m_iROUNDS(0)
 {
 	m_pKey = new uint8_t[m_iBlockSize];
-	if (!m_pKey)
-		throw exception("Error: No memory");
-	
-	for (int i = 0; i < MAX_BC; i++)
-	{
-		m_tk[i] = 0;
-		m_a[i] = 0;
-		m_t[i] = 0;
-	}
-
+	ASSERT(m_pKey);
 	memcpy(m_pKey, m_KEY_32_DEFAULT, m_iBlockSize);
 	makeKey();
 	m_bKeyInit = true;
@@ -921,37 +913,34 @@ CAES::~CAES(void)
 //Encrypt a string
 //Input: a plain text in strIn
 //Return: an encrypted string by AES or empty string and throw by error 
-void CAES::encryptString(const string& strIn, string& strOut)
+const string CAES::encryptString(const string& strIn)
 {
-	strOut = "";
 	if (!strIn.empty())
 	{
 		CAES aes;
 		string strInternalIn("");
+		string strInternalOut("");
 		int nSize = strIn.size();
 		for (int i = 0; i < nSize; i++)
 		{
 			strInternalIn += strIn[i];
 			if (strInternalIn.size() == aes.m_iBlockSize)
 			{
-				string strTemp;
-				aes.encryptInternalString(strInternalIn, strTemp);
-				strOut.append(strTemp);
+				strInternalOut.append(aes.encryptInternalString(strInternalIn));
 				strInternalIn = "";
 			}
 		}
 		if (!strInternalIn.empty())
-		{
-			string strTemp;
-			aes.encryptInternalString(strInternalIn, strTemp);
-			strOut.append(strTemp);
-		}
+			strInternalOut.append(aes.encryptInternalString(strInternalIn));
+		return strInternalOut;
 	}
+	else
+		return strIn;
 }
 
-void  CAES::encryptInternalString(const string& strIn, string& strOut)
+const string CAES::encryptInternalString(const string& strIn)
 {
-	strOut = "";
+	string strOut;
 	if (!m_bKeyInit)
 	{
 		throw exception("Error: Not init"); 
@@ -966,19 +955,12 @@ void  CAES::encryptInternalString(const string& strIn, string& strOut)
 	int32_t s1 = m_sm_shifts[SC][1][0];
 	int32_t s2 = m_sm_shifts[SC][2][0];
 	int32_t s3 = m_sm_shifts[SC][3][0];
-
 	//Temporary Work Arrays
 	int32_t i;
 	int32_t tt;
 	int32_t* pi = m_t;
 
-	unsigned char* in = NULL;
-	in = new unsigned char [m_iBlockSize + 1];
-	if(!in)
-		throw exception("Error: No memory"); 
-	memset(in, 0, m_iBlockSize + 1);
-	memcpy(in, strIn.c_str(), strIn.size());
-	unsigned char* pin =  in;
+	const unsigned char* in = (unsigned char*)strIn.c_str();
 
 	for(i=0; i<BC; i++)
 	{
@@ -987,8 +969,6 @@ void  CAES::encryptInternalString(const string& strIn, string& strOut)
 		*pi |= ((unsigned char)*(in++) << 8);
 		(*(pi++) |= (unsigned char)*(in++)) ^= m_Ke[0][i];
 	}
-	delete [] pin;
-	
 	//Apply Round Transforms
 	for(int32_t r=1; r<m_iROUNDS; r++)
 	{
@@ -999,13 +979,10 @@ void  CAES::encryptInternalString(const string& strIn, string& strOut)
 				m_sm_T4[ m_t[(i + s3) % BC] & 0xFF] ) ^ m_Ke[r][i];
 		memcpy(m_t, m_a, 4*BC);
 	}
-
 	int32_t j;
 	//Last Round is Special
-	char* result = NULL;
-	result = new char[m_iBlockSize + 1];
-	if (!result)
-		throw exception("Error: no memory");
+	char* result = new char[m_iBlockSize + 1];
+	ASSERT(result);
 	memset(result, 0, m_iBlockSize + 1);
 	for(i=0,j=0; i<BC; i++)
 	{
@@ -1017,6 +994,7 @@ void  CAES::encryptInternalString(const string& strIn, string& strOut)
 	}
 	charStr2HexStr((unsigned char*) result, strOut, m_iBlockSize);
 	delete [] result;
+	return strOut;
 }
 
 
@@ -1148,10 +1126,8 @@ void CAES::decryptInternalString(const string& strInInternalA, char** strOutInte
 		memcpy(m_t, m_a, 4*BC);
 	}
 	int32_t j;
-	char* result = NULL;
-	result = new char[m_iBlockSize + 1];
-	if (!result)
-		throw exception("Error: no memory");
+	char* result = new char[m_iBlockSize + 1];
+	ASSERT(result);
 	memset(result, 0,  m_iBlockSize + 1);
 	//Last Round is Special
 	for(i=0, j=0; i<BC; i++)
@@ -1165,7 +1141,7 @@ void CAES::decryptInternalString(const string& strInInternalA, char** strOutInte
 	int nLen = strlen(result);
 	*strOutInternalA = new char[nLen + 1];
 	if (!*strOutInternalA)
-		 throw exception("Error: No memory");
+		 exception("Error: No memory");
 	strcpy_s(*strOutInternalA, nLen +1, result);
 	delete [] result;
 }
@@ -1251,7 +1227,7 @@ void CAES::makeKey(void)
 }
 
 //Function to convert string of unsigned chars to string of chars
-void CAES::charStr2HexStr(const unsigned char* pucCharStr, string& pszHexStr, int32_t iSize)
+void CAES::charStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize)
 {
 	ASSERT(pucCharStr);
 
@@ -1297,7 +1273,7 @@ void CAES::hexStr2CharStr(const string& pszHexStr, unsigned char* pucCharStr, in
 }
 
 //Function to convert string of length 2 to unsigned char
-void CAES::hex2Char( const char* szHex, unsigned char& rch)
+void CAES::hex2Char(char const* szHex, unsigned char& rch)
 {
 	rch = 0;
 	for(int32_t i=0; i<2; i++)

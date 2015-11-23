@@ -25,14 +25,14 @@ public:
 	//Encrypt a string
 	//Input: a plain text in strIn
 	//Return: an encrypted string by AES or empty string and throw by error  
-	static void encryptString(const string& strIn, string& strOut);
+	static const string encryptString(const string& strIn);
 
 	//Decrypt a string
 	//Input: a decrypted text by AES in strIn
 	//Return: a plain text or empty string and throw by error  
 	static void decryptString(wstring strInW, wstring& strOutW); 
 private:
-	void encryptInternalString(const string& strIn, string& strOut); 
+	const string encryptInternalString(const string& strIn); 
 	void decryptInternalString(const string& strInInternalA, char** strOutInternalA); 
 
 	enum { MAX_BLOCK_SIZE=32, MAX_ROUNDS=14, MAX_KC=8, MAX_BC=8 };
@@ -81,7 +81,7 @@ private:
 	static const int32_t m_sm_shifts[3][4][2];
 
 	//Function to convert string of unsigned chars to string of chars
-	void charStr2HexStr(const unsigned char * pucCharStr, string& pszHexStr, int32_t iSize);
+	void charStr2HexStr(unsigned char const* pucCharStr, string& pszHexStr, int32_t iSize);
 	
 	//Function to convert unsigned char to string of length 2
 	void char2Hex(unsigned char ch, char* szHex);
@@ -90,7 +90,7 @@ private:
 	void hexStr2CharStr(const string& pszHexStr, unsigned char* pucCharStr, int iSize);
 	
 	//Function to convert string of length 2 to unsigned char
-	void hex2Char(const char*  szHex, unsigned char& rch);
+	void hex2Char(char const* szHex, unsigned char& rch);
 
 	bool convertAsciiToUnicode(const char * strAscii, wchar_t * strUnicode);
 	bool convertUnicodeToAscii(const wchar_t * strUnicode, char * strAscii);
