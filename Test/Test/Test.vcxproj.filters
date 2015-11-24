@@ -36,6 +36,9 @@
     <ClInclude Include="Other_codes\Setting2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Other_codes\Setting2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

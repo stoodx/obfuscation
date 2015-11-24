@@ -569,7 +569,8 @@ CStringA ParserEndgine::encodeText(CStringA strText)
 	//return str;
 
 	string strIn(strText.GetBuffer());
-	string strOut =	CAES::encryptString(strIn);
+	string strOut;
+	CAES::encryptString(strIn, strOut);
 	return CStringA(strOut.c_str());
 }
 

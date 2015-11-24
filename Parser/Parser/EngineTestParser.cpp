@@ -240,7 +240,7 @@ TEST_F(EngineTestParser,  createTempDir)
 TEST_F(EngineTestParser,  encodeText_encode)
 {
 	std::string strEncode(m_parser.encodeText("12345678"));
-	ASSERT_EQ(0, strEncode.compare("37C4B9C7D36CBE0215DEE465108EDCF7B91811905725B8F32C29B2B3584CE4A2"));
+	ASSERT_EQ(0, strEncode.compare("D5778F661C9A62326652ABD960DF36C208BF904C9F3BFC56F176DAB84CD9C8B3"));
 }
 
 TEST_F(EngineTestParser,  parseFile_noPath)

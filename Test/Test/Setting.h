@@ -25,20 +25,20 @@ private:
 	std::wstring m_str[MAX_STRING_NUMBER + 1];
 	int m_nIndexStr;
 
-	inline std::wstring s2ws(const std::string& str)
-	{
-		typedef std::codecvt_utf16<wchar_t> convert_typeX;
-		std::wstring_convert<convert_typeX, wchar_t> converterX;
+	//inline std::wstring s2ws(const std::string& str)
+	//{
+	//	typedef std::codecvt_utf16<wchar_t> convert_typeX;
+	//	std::wstring_convert<convert_typeX, wchar_t> converterX;
 
-		return converterX.from_bytes(str);
-	}
+	//	return converterX.from_bytes(str);
+	//}
 
-	inline std::string ws2s(const std::wstring& wstr)
-	{
-		typedef std::codecvt_utf16<wchar_t> convert_typeX;
-		std::wstring_convert<convert_typeX, wchar_t> converterX;
+	//inline std::string ws2s(const std::wstring& wstr)
+	//{
+	//	typedef std::codecvt_utf16<wchar_t> convert_typeX;
+	//	std::wstring_convert<convert_typeX, wchar_t> converterX;
 
-		return converterX.to_bytes(wstr);
-	}
+	//	return converterX.to_bytes(wstr);
+	//}
 
 };
