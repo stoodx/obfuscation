@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Arch.h"
 #include "AES.h"
-#include "ParserEndgine.h"
+#include "ParserEngine.h"
 
 CWinApp theApp;
 
@@ -14,7 +14,7 @@ extern const TCHAR* g_strArchFilename;
 
 using namespace std;
 
-ParserEndgine::ParserEndgine(void)
+ParserEngine::ParserEngine(void)
 	: m_strCurrentPath(_T(""))
 {
 	TCHAR strCurrentPath[MAX_PATH * sizeof(TCHAR)] = {0};
@@ -24,13 +24,13 @@ ParserEndgine::ParserEndgine(void)
 }
 
 
-ParserEndgine::~ParserEndgine(void)
+ParserEngine::~ParserEngine(void)
 {
 }
 
 
 
-int ParserEndgine::obfuscate()
+int ParserEngine::obfuscate()
 {
 	//return:
 	//0 - normal
@@ -104,7 +104,7 @@ int ParserEndgine::obfuscate()
 	return nResult;
 }
 
-int ParserEndgine::restore()
+int ParserEngine::restore()
 {
 	//return:
 	//0 - normal
@@ -223,7 +223,7 @@ int ParserEndgine::restore()
 	return nResult;
 }
 
-int ParserEndgine::findSubDirs(CPtrArray& listDirs)
+int ParserEngine::findSubDirs(CPtrArray& listDirs)
 {
 	//return size of dirs in root
 	if (listDirs.GetSize() == 0)
@@ -268,7 +268,7 @@ int ParserEndgine::findSubDirs(CPtrArray& listDirs)
 }
 
 
-bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
+bool ParserEngine::findCodesFiles(CPtrArray& listDirs)
 {
 	//return false - error
 	int nSize = listDirs.GetSize();
@@ -311,7 +311,7 @@ bool ParserEndgine::findCodesFiles(CPtrArray& listDirs)
 		return true;
 }
 
-bool ParserEndgine::findFileByType(CCodeDirectories* pDirs, CString strTypeFile)
+bool ParserEngine::findFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 {
 	//return true - we found files
 	if(!pDirs || strTypeFile.GetLength() == 0)
@@ -342,7 +342,7 @@ bool ParserEndgine::findFileByType(CCodeDirectories* pDirs, CString strTypeFile)
 }
 
 
-int ParserEndgine::parseFiles(CCodeDirectories* pDirs)
+int ParserEngine::parseFiles(CCodeDirectories* pDirs)
 {
 	//return:
 	//-1 - error
@@ -390,7 +390,7 @@ int ParserEndgine::parseFiles(CCodeDirectories* pDirs)
 	return nSize;
 }
 
-int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename, bool& bTempDirCreated)
+int ParserEngine::parseFile(const CString& strPath, const CString& strFilename, bool& bTempDirCreated)
 {
 	//return:
 	//-1 - error
@@ -554,7 +554,7 @@ int ParserEndgine::parseFile(const CString& strPath, const CString& strFilename,
 	return nFileLength;
 }
 
-CStringA ParserEndgine::encodeText(CStringA strText)
+CStringA ParserEngine::encodeText(CStringA strText)
 {
 	////plus 2 to each char
 	//int nLen = strText.GetLength();
@@ -574,7 +574,7 @@ CStringA ParserEndgine::encodeText(CStringA strText)
 	return CStringA(strOut.c_str());
 }
 
-int ParserEndgine::getFileError(CFileException *e)
+int ParserEngine::getFileError(CFileException *e)
 {
 		switch(e->m_cause)
 		{
@@ -643,7 +643,7 @@ int ParserEndgine::getFileError(CFileException *e)
 	}
 }
 
-bool ParserEndgine::createTempDir(const CString& strPath)
+bool ParserEngine::createTempDir(const CString& strPath)
 {
 	//return false - error
 	

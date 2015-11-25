@@ -1,8 +1,8 @@
 #ifdef _GOOGLE_TEST
 
 #include "stdafx.h"
-#include "gtest.h"
-#include "ParserEndgine.h"
+#include "gtest\gtest.h"
+#include "ParserEngine.h"
 
 std::wstring g_strCurrentDir;
 extern const TCHAR* g_strNameTempDir;
@@ -13,7 +13,7 @@ class EngineTestParser :
 	public ::testing::Test
 {
 protected:
-	ParserEndgine m_parser;
+	ParserEngine m_parser;
 	std::wstring m_strRootPath;
 	void SetUp()
 	{
@@ -246,7 +246,7 @@ TEST_F(EngineTestParser,  encodeText_encode)
 TEST_F(EngineTestParser,  parseFile_noPath)
 {
 	CString strPath(_T(""));
-	CString strFilename("ParserEndgine.cpp");
+	CString strFilename("ParserEngine.cpp");
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 	SetCurrentDirectory(g_strCurrentDir.c_str());
@@ -274,7 +274,7 @@ TEST_F(EngineTestParser,  parseFile_cannotOpenFile)
 	Sleep(TEST_DELAY);
 
 	CString strPath(strTestDir);
-	CString strFilename("ParserEndgine.cpp");
+	CString strFilename("ParserEngine.cpp");
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 
@@ -300,7 +300,7 @@ TEST_F(EngineTestParser,  parseFile_haveNullFileLength)
 
 	//create a nul file
 	CString strFilePath(strTestDir);
-	strFilePath += _T("ParserEndgine.cpp");
+	strFilePath += _T("ParserEngine.cpp");
 	HANDLE hFile = CreateFile(strFilePath,  GENERIC_WRITE, 0,  
 		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile ==  INVALID_HANDLE_VALUE)
@@ -314,7 +314,7 @@ TEST_F(EngineTestParser,  parseFile_haveNullFileLength)
 	CloseHandle(hFile);
 
 	CString strPath(strTestDir);
-	CString strFilename("ParserEndgine.cpp");
+	CString strFilename("ParserEngine.cpp");
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 
@@ -340,13 +340,13 @@ TEST_F(EngineTestParser,  parseFile_define__NO__OBFUSCATION)
 
 	//copy file with NO__OBFUSCATION
 	CString strSourceFile(m_strRootPath.c_str());
-	strSourceFile += _T("Parser\\Parser\\ParserEndgine.cpp");
+	strSourceFile += _T("Parser\\Parser\\ParserEngine.cpp");
 	CString strDestFile(strTestDir);
-	strDestFile += _T("ParserEndgine.cpp");
+	strDestFile += _T("ParserEngine.cpp");
 	CopyFile(strSourceFile, strDestFile, TRUE);
 
 	CString strPath(strTestDir);
-	CString strFilename("ParserEndgine.cpp");
+	CString strFilename("ParserEngine.cpp");
 	bool bCreateTempDir = false;
 	int nRes = m_parser.parseFile(strPath, strFilename, bCreateTempDir);
 

@@ -21,11 +21,11 @@ struct CCodeDirectories
 	}
 };
 
-class ParserEndgine
+class ParserEngine
 {
 public:
-	ParserEndgine(void);
-	~ParserEndgine(void);
+	ParserEngine(void);
+	~ParserEngine(void);
 
 	int obfuscate(void);
 	int restore(void);

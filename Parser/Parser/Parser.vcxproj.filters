@@ -93,10 +93,10 @@
     <ClInclude Include="gtest\internal\gtest-type-util.h">
       <Filter>Tests</Filter>
     </ClInclude>
-    <ClInclude Include="ParserEndgine.h">
+    <ClInclude Include="AES.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AES.h">
+    <ClInclude Include="ParserEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -110,13 +110,13 @@
     <ClCompile Include="Arch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParserEndgine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EngineTestParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AES.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

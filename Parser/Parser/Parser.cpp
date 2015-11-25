@@ -4,7 +4,7 @@
 #ifndef _GOOGLE_TEST
 
 #include "stdafx.h"
-#include "ParserEndgine.h"
+#include "ParserEngine.h"
 
 
 #ifdef _DEBUG
@@ -40,7 +40,7 @@ err:
 	}
 	else
 	{
-		ParserEndgine parser;		
+		ParserEngine parser;		
 		TCHAR ch =  argv[1][0];
 		switch(ch) 
 		{
@@ -68,7 +68,7 @@ err:
 #else
 
 #include "stdafx.h"
-#include "gtest.h"
+#include "gtest\gtest.h"
 
 int main(int argc, char* argv[])
 {

@@ -62,8 +62,8 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='unittest|Win32'">
-    <LibraryPath>$(ProjectDir);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)gtest;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)gtest-1.7.0\msvc\gtest\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)gtest-1.7.0\include;$(IncludePath)</IncludePath>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -151,7 +151,7 @@
     <ClInclude Include="gtest\internal\gtest-string.h" />
     <ClInclude Include="gtest\internal\gtest-tuple.h" />
     <ClInclude Include="gtest\internal\gtest-type-util.h" />
-    <ClInclude Include="ParserEndgine.h" />
+    <ClInclude Include="ParserEngine.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -161,7 +161,7 @@
     <ClCompile Include="Arch.cpp" />
     <ClCompile Include="EngineTestParser.cpp" />
     <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="ParserEndgine.cpp" />
+    <ClCompile Include="ParserEngine.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
